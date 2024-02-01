@@ -1,9 +1,15 @@
 [versions]
+
 nexusPublish = "2.0.0-rc-1"
+
 lombok = "1.18.30"
+
+gson = "2.10.1"
 
 [libraries]
 lombok = { group = "org.projectlombok", name="lombok", version.ref = "lombok" }
+
+gson = { group = "com.google.code.gson", name="gson", version.ref = "gson" }
 
 [plugins]
 nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }
