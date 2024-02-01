@@ -1,3 +1,5 @@
+import org.gradle.internal.impldep.org.bouncycastle.cms.RecipientId.password
+
 plugins {
     id("java-library")
     id("maven-publish")
@@ -7,9 +9,11 @@ plugins {
 
 allprojects {
     apply(plugin = "java-library")
+    apply(plugin = "maven-publish")
+
 
     group = "dev.httpmarco"
-    version = "1.0.2-SNAPSHOT"
+    version = "1.0.3-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -27,32 +31,32 @@ allprojects {
         options.encoding = "UTF-8"
         options.isIncremental = true
     }
-}
 
-extensions.configure<PublishingExtension> {
-    publications {
-        create("library", MavenPublication::class.java) {
-            from(project.components.getByName("java"))
+    extensions.configure<PublishingExtension> {
+        publications {
+            create("library", MavenPublication::class.java) {
+                from(project.components.getByName("java"))
 
-            pom {
-                name.set(project.name)
-                url.set("https://github.com/httpmarco/osgon")
-                description.set("Reflection/Data libary")
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-                developers {
-                    developer {
-                        name.set("Mirco Lindenau")
-                        email.set("mirco.lindenau@gmx.de")
-                    }
-                }
-                scm {
+                pom {
+                    name.set(project.name)
                     url.set("https://github.com/httpmarco/osgon")
-                    connection.set("https://github.com/httpmarco/osgon.git")
+                    description.set("Reflection/Data libary")
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://opensource.org/licenses/MIT")
+                        }
+                    }
+                    developers {
+                        developer {
+                            name.set("Mirco Lindenau")
+                            email.set("mirco.lindenau@gmx.de")
+                        }
+                    }
+                    scm {
+                        url.set("https://github.com/httpmarco/osgon")
+                        connection.set("https://github.com/httpmarco/osgon.git")
+                    }
                 }
             }
         }
