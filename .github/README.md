@@ -2,9 +2,11 @@
 
 ![Release Version](https://img.shields.io/maven-central/v/dev.httpmarco.reflections/reflections)
 
+// TODO REWORK
+
 ### Dependencies
 ```kts
-
+Only maven central snapshots
 ```
 
 
