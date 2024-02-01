@@ -1,34 +1,63 @@
 plugins {
-    id("java")
-    `maven-publish`
+    id("java-library")
+    id("maven-publish")
+
+    alias(libs.plugins.nexusPublish)
 }
 
 group = "dev.httpmarco"
-version = "1.0.0-SNAPSHOT"
+version = "1.0.1-SNAPSHOT"
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/HttpMarco/reflections")
-            credentials {
-                username = System.getenv("GITHUB_PUBLISH_USER")
-                password = System.getenv("GITHUB_PUBLISH_KEY")
+tasks.withType<JavaCompile> {
+    sourceCompatibility = JavaVersion.VERSION_17.toString()
+    targetCompatibility = JavaVersion.VERSION_17.toString()
+    // options
+    options.encoding = "UTF-8"
+    options.isIncremental = true
+}
+
+extensions.configure<PublishingExtension> {
+    publications {
+        create("library", MavenPublication::class.java) {
+            from(project.components.getByName("java"))
+
+            pom {
+                name.set(project.name)
+                url.set("https://github.com/httpmarco/reflections")
+                description.set("Reflection libary")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                developers {
+                    developer {
+                        name.set("Mirco Lindenau")
+                        email.set("mirco.lindenau@gmx.de")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/httpmarco/refelections")
+                    connection.set("https://github.com/httpmarco/refelections.git")
+                }
             }
         }
     }
-    publications {
-        register<MavenPublication>("gpr") {
-            from(components["java"])
-        }
-    }
 }
 
-tasks.test {
-    useJUnitPlatform()
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+
+            username.set(System.getenv("ossrhUsername")?.toString() ?: "")
+            password.set(System.getenv("ossrhPassword")?.toString() ?: "")
+        }
+    }
+    useStaging.set(!project.rootProject.version.toString().endsWith("-SNAPSHOT"))
 }
