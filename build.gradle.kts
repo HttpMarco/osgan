@@ -5,18 +5,28 @@ plugins {
     alias(libs.plugins.nexusPublish)
 }
 
-group = "dev.httpmarco"
-version = "1.0.1-SNAPSHOT"
+allprojects {
+    apply(plugin = "java-library")
 
-dependencies {
-}
+    group = "dev.httpmarco"
+    version = "1.0.1-SNAPSHOT"
 
-tasks.withType<JavaCompile> {
-    sourceCompatibility = JavaVersion.VERSION_17.toString()
-    targetCompatibility = JavaVersion.VERSION_17.toString()
-    // options
-    options.encoding = "UTF-8"
-    options.isIncremental = true
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation(rootProject.libs.lombok)
+        annotationProcessor(rootProject.libs.lombok)
+    }
+
+    tasks.withType<JavaCompile> {
+        sourceCompatibility = JavaVersion.VERSION_17.toString()
+        targetCompatibility = JavaVersion.VERSION_17.toString()
+        // options
+        options.encoding = "UTF-8"
+        options.isIncremental = true
+    }
 }
 
 extensions.configure<PublishingExtension> {
@@ -26,8 +36,8 @@ extensions.configure<PublishingExtension> {
 
             pom {
                 name.set(project.name)
-                url.set("https://github.com/httpmarco/reflections")
-                description.set("Reflection libary")
+                url.set("https://github.com/httpmarco/osgon")
+                description.set("Reflection/Data libary")
                 licenses {
                     license {
                         name.set("MIT License")
@@ -41,8 +51,8 @@ extensions.configure<PublishingExtension> {
                     }
                 }
                 scm {
-                    url.set("https://github.com/httpmarco/refelections")
-                    connection.set("https://github.com/httpmarco/refelections.git")
+                    url.set("https://github.com/httpmarco/osgon")
+                    connection.set("https://github.com/httpmarco/osgon.git")
                 }
             }
         }

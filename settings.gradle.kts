@@ -1,2 +1,4 @@
-rootProject.name = "reflections"
-
+rootProject.name = "osgon"
+include("osgan-utils")
+include("osgan-reflections")
+include("osgan-configuration")

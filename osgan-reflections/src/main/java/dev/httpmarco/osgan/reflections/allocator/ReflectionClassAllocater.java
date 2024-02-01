@@ -1,8 +1,7 @@
-package dev.httpmarco.reflections.allocate;
+package dev.httpmarco.osgan.reflections.allocator;
 
 import sun.misc.Unsafe;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
 public final class ReflectionClassAllocater {
@@ -11,7 +10,7 @@ public final class ReflectionClassAllocater {
 
     static {
         try {
-            Field field = Unsafe.class.getDeclaredField("theUnsafe");
+            var field = Unsafe.class.getDeclaredField("theUnsafe");
             field.setAccessible(true);
             unsafe = (Unsafe) field.get(null);
         } catch (IllegalAccessException | NoSuchFieldException var1) {

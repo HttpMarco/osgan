@@ -1,6 +1,9 @@
 [versions]
-
 nexusPublish = "2.0.0-rc-1"
+lombok = "1.18.30"
+
+[libraries]
+lombok = { group = "org.projectlombok", name="lombok", version.ref = "lombok" }
 
 [plugins]
 nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }
