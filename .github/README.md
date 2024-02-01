@@ -1,5 +1,7 @@
 ## Reflections
 
+![Release Version](https://img.shields.io/maven-central/v/dev.httpmarco.reflections/reflections)
+
 ### Dependencies
 ```kts
 
