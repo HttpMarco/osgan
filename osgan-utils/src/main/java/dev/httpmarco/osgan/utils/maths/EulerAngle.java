@@ -24,20 +24,14 @@ public class EulerAngle {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        EulerAngle that = (EulerAngle) o;
-
-        return Double.compare(that.x, x) == 0
-                && Double.compare(that.y, y) == 0
-                && Double.compare(that.z, z) == 0;
+        var that = (EulerAngle) o;
+        return Double.compare(that.x, x) == 0 && Double.compare(that.y, y) == 0 && Double.compare(that.z, z) == 0;
     }
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        temp = Double.doubleToLongBits(x);
-        result = Long.hashCode(temp);
+        var temp = Double.doubleToLongBits(x);
+        var result = Long.hashCode(temp);
         temp = Double.doubleToLongBits(y);
         result = 31 * result + Long.hashCode(temp);
         temp = Double.doubleToLongBits(z);
