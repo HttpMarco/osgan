@@ -1,4 +1,4 @@
-package dev.httpmarco.osgan.utils;
+package dev.httpmarco.osgan.utils.types;
 
 public class NumberUtils {
 

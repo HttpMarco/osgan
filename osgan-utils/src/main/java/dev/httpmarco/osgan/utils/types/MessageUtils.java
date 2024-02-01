@@ -1,6 +1,5 @@
 package dev.httpmarco.osgan.utils.types;
 
-import dev.httpmarco.osgan.utils.NumberUtils;
 import dev.httpmarco.osgan.utils.Patterns;
 import dev.httpmarco.osgan.utils.RandomUtils;
 import dev.httpmarco.osgan.utils.Utils;
