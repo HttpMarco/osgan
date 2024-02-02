@@ -1,6 +1,6 @@
 [versions]
 
-nexusPublish = "2.0.0-rc-1"
+nexusPublish = "2.0.0-rc-2"
 
 lombok = "1.18.30"
 
