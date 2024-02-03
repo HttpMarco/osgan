@@ -1,5 +1,3 @@
-import org.gradle.internal.impldep.org.bouncycastle.cms.RecipientId.password
-
 plugins {
     id("java-library")
     id("maven-publish")
@@ -13,7 +11,7 @@ allprojects {
 
 
     group = "dev.httpmarco"
-    version = "1.0.4-SNAPSHOT"
+    version = "1.0.5-SNAPSHOT"
 
     repositories {
         mavenCentral()
