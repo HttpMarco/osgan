@@ -17,4 +17,12 @@ public final class Reflections {
         field.setAccessible(true);
         return field.get(object);
     }
+
+    public static Object getField(String id, Object value) {
+        try {
+            return getField(value.getClass().getDeclaredField(id), value);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
