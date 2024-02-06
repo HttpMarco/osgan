@@ -40,6 +40,11 @@ public class JsonUtils {
         GSON.toJson(object, fileWriter);
     }
 
+    public static void writePrettyJson(Object object, FileWriter fileWriter) {
+        PRETTY_GSON.toJson(object, fileWriter);
+    }
+
+
     public static <T> T fromJson(String string, Class<T> tClass) {
         return GSON.fromJson(string, tClass);
     }
@@ -51,4 +56,11 @@ public class JsonUtils {
     public static <T> T fromJson(FileReader fileReader, Class<T> tClass) {
         return GSON.fromJson(fileReader, tClass);
     }
+
+    public static <T> T fromPrettyJson(FileReader fileReader, Class<T> tClass) {
+        return PRETTY_GSON.fromJson(fileReader, tClass);
+    }
+
+
 }
+

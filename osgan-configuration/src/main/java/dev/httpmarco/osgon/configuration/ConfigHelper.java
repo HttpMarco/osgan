@@ -8,7 +8,7 @@ public final class ConfigHelper {
 
     public static <T> T getConfig(String name, Class<T> clazz) {
         try {
-            return JsonUtils.fromJson(new FileReader(name), clazz);
+            return JsonUtils.fromPrettyJson(new FileReader(name), clazz);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -26,7 +26,7 @@ public final class ConfigHelper {
     public static void saveConfig(String name, Object object) {
         try {
             FileWriter fileWriter = new FileWriter(name);
-            JsonUtils.writeJson(object, fileWriter);
+            JsonUtils.writePrettyJson(object, fileWriter);
             fileWriter.flush();
             fileWriter.close();
         } catch (IOException e) {
