@@ -10,6 +10,10 @@ public class JsonDocument {
 
     private JsonObject jsonObject;
 
+    public JsonDocument(String gsonObject) {
+        this.jsonObject = JsonUtils.getGson().fromJson(gsonObject, JsonObject.class);
+    }
+
     public JsonDocument append(String key, String value) {
         jsonObject.addProperty(key, value);
         return this;
@@ -62,5 +66,10 @@ public class JsonDocument {
 
     public <T> T readObject(String key, Class<T> clazz) {
         return JsonUtils.fromPrettyJson(readString(key), clazz);
+    }
+
+    @Override
+    public String toString() {
+        return jsonObject.toString();
     }
 }
