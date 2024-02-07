@@ -3,6 +3,7 @@ package dev.httpmarco.osgan.reflections;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 public final class Reflections {
 
@@ -22,6 +23,14 @@ public final class Reflections {
         try {
             return getField(value.getClass().getDeclaredField(id), value);
         } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void callMethod(Method method, Object object, Object... args) {
+        try {
+            method.invoke(object, args);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
