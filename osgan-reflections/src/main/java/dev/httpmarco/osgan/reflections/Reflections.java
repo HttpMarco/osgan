@@ -27,7 +27,7 @@ public final class Reflections {
         }
     }
 
-    public void callMethod(Method method, Object object, Object... args) {
+    public static void callMethod(Method method, Object object, Object... args) {
         try {
             method.invoke(object, args);
         } catch (Exception e) {
