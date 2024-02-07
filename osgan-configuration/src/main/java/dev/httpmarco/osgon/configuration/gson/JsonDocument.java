@@ -3,12 +3,14 @@ package dev.httpmarco.osgon.configuration.gson;
 import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class JsonDocument {
 
-    private JsonObject jsonObject;
+    private JsonObject jsonObject = new JsonObject();
 
     public JsonDocument(String gsonObject) {
         this.jsonObject = JsonUtils.getGson().fromJson(gsonObject, JsonObject.class);
