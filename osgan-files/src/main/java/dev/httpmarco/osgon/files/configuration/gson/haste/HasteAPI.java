@@ -1,7 +1,7 @@
-package dev.httpmarco.osgon.configuration.gson.haste;
+package dev.httpmarco.osgon.files.configuration.gson.haste;
 
 import com.google.gson.JsonObject;
-import dev.httpmarco.osgon.configuration.gson.JsonUtils;
+import dev.httpmarco.osgon.files.configuration.gson.JsonUtils;
 import lombok.SneakyThrows;
 
 import javax.net.ssl.HttpsURLConnection;

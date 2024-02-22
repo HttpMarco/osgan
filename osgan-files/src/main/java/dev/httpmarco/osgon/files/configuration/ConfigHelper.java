@@ -1,6 +1,6 @@
-package dev.httpmarco.osgon.configuration;
+package dev.httpmarco.osgon.files.configuration;
 
-import dev.httpmarco.osgon.configuration.gson.JsonUtils;
+import dev.httpmarco.osgon.files.configuration.gson.JsonUtils;
 
 import java.io.*;
 

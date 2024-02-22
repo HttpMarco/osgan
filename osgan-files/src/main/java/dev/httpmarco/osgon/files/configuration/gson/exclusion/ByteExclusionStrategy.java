@@ -1,8 +1,8 @@
-package dev.httpmarco.osgon.configuration.gson.exclusion;
+package dev.httpmarco.osgon.files.configuration.gson.exclusion;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
-import dev.httpmarco.osgon.configuration.ConfigExclude;
+import dev.httpmarco.osgon.files.configuration.ConfigExclude;
 
 public class ByteExclusionStrategy implements ExclusionStrategy {
     @Override
