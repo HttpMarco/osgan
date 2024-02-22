@@ -1,6 +1,7 @@
-package dev.httpmarco.osgon.configuration.gson;
+package dev.httpmarco.osgon.files.configuration.gson;
 
 import com.google.gson.JsonObject;
+import dev.httpmarco.osgon.files.configuration.gson.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
