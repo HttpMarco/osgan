@@ -1,47 +1,80 @@
 package dev.httpmarco.osgan.reflections;
 
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 
-public final class Reflections {
+@RequiredArgsConstructor
+public class Reflections<T> {
 
-    @SneakyThrows
-    public static void modifyField(Field field, Object object, Object value) {
-        field.setAccessible(true);
-        field.set(object, value);
+    private final Class<T> clazz;
+    private @Nullable T value;
+
+    public static <D> Reflections<D> of(Class<D> clazz) {
+        return new Reflections<>(clazz);
+    }
+
+    public Reflections<T> withValue(Object value) {
+        this.value = clazz.cast(value);
+        return this;
     }
 
     @SneakyThrows
-    public static Object getField(Field field, Object object) {
+    public Field field(String id) {
+        var field = this.clazz.getDeclaredField(id);
         field.setAccessible(true);
-        return field.get(object);
+        return field;
     }
 
-    public static <T> T newInstance(Class<T> clazz, Object... objects) {
-        try {
-            return clazz.getConstructor(Arrays.stream(objects).map(Object::getClass).toArray(Class[]::new)).newInstance(objects);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    @SneakyThrows
+    public Method method(String id) {
+        var method = this.clazz.getDeclaredMethod(id);
+        method.setAccessible(true);
+        return method;
     }
 
-    public static Object getField(String id, Object value) {
-        try {
-            return getField(value.getClass().getDeclaredField(id), value);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
+    @SneakyThrows
+    public T newInstanceWithNoArgs() {
+        return this.clazz.getConstructor().newInstance();
     }
 
-    public static void callMethod(Method method, Object object, Object... args) {
-        try {
-            method.invoke(object, args);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public T allocate() {
+        return Allocator.allocate(clazz);
+    }
+
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    public T value(Field field) {
+        field.setAccessible(true);
+        return (T) field.get(this.value);
+    }
+
+    @SneakyThrows
+    public T value(String fieldId) {
+        return this.value(field(fieldId));
+    }
+
+    @SneakyThrows
+    public void modify(Field field, Object value) {
+        field.setAccessible(true);
+        field.set(this.value, value);
+    }
+
+    @SneakyThrows
+    public void modify(String fieldId, Object value) {
+        this.modify(field(fieldId), value);
+    }
+
+    @SneakyThrows
+    public void applyMethod(Method method, Object... args) {
+        method.invoke(value, args);
+    }
+
+    @SneakyThrows
+    public void applyMethod(String methodId, Object... args) {
+        method(methodId).invoke(value, args);
     }
 }

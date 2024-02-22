@@ -11,7 +11,7 @@ allprojects {
 
 
     group = "dev.httpmarco"
-    version = "1.0.15-SNAPSHOT"
+    version = "1.0.16-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -20,6 +20,9 @@ allprojects {
     dependencies {
         implementation(rootProject.libs.lombok)
         annotationProcessor(rootProject.libs.lombok)
+
+        implementation(rootProject.libs.annotations)
+        annotationProcessor(rootProject.libs.annotations)
     }
 
     tasks.withType<JavaCompile> {

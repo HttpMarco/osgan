@@ -1,12 +1,12 @@
-package dev.httpmarco.osgan.reflections.allocator;
+package dev.httpmarco.osgan.reflections;
 
 import sun.misc.Unsafe;
 
 import java.lang.reflect.InvocationTargetException;
 
-public final class ReflectionClassAllocater {
+final class Allocator {
 
-    public static final Unsafe unsafe;
+    private static final Unsafe unsafe;
 
     static {
         try {
@@ -18,6 +18,7 @@ public final class ReflectionClassAllocater {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T allocate(Class<T> tClass) {
         try {
             return (T) unsafe.allocateInstance(tClass);

@@ -2,13 +2,14 @@
 
 nexusPublish = "2.0.0-rc-2"
 
+annotations = "24.1.0"
 lombok = "1.18.30"
 
 gson = "2.10.1"
 
 [libraries]
 lombok = { group = "org.projectlombok", name="lombok", version.ref = "lombok" }
-
+annotations = { group = "org.jetbrains", name="annotations", version.ref = "annotations" }
 gson = { group = "com.google.code.gson", name="gson", version.ref = "gson" }
 
 [plugins]
