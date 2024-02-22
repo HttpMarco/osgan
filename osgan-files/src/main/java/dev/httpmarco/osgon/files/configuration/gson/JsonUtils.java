@@ -1,8 +1,8 @@
-package dev.httpmarco.osgon.configuration.gson;
+package dev.httpmarco.osgon.files.configuration.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.httpmarco.osgon.configuration.gson.exclusion.ByteExclusionStrategy;
+import dev.httpmarco.osgon.files.configuration.gson.exclusion.ByteExclusionStrategy;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -33,7 +33,7 @@ public class JsonUtils {
     }
 
     public static String toPrettyJson(Object object) {
-        return GSON.toJson(object);
+        return PRETTY_GSON.toJson(object);
     }
 
     public static void writeJson(Object object, FileWriter fileWriter) {
