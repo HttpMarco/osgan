@@ -6,10 +6,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class OsganFiles {
+public class Files {
 
     public static void copyInputStreamToFile(InputStream inputStream, File file) throws IOException {
         try (var outputStream = new FileOutputStream(file, false)) {
@@ -23,7 +22,7 @@ public class OsganFiles {
 
     @SneakyThrows
     public static void writeString(Path path, String content) {
-        Files.writeString(path, content);
+        java.nio.file.Files.writeString(path, content);
     }
 
     public static void writeString(String path, String content) {
@@ -32,7 +31,7 @@ public class OsganFiles {
 
     @SneakyThrows
     public static String readString(Path path) {
-        return Files.readString(path);
+        return java.nio.file.Files.readString(path);
     }
 
     public static String readString(String path) {

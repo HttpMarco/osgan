@@ -1,7 +1,6 @@
-package dev.httpmarco.osgon.files.configuration.gson;
+package dev.httpmarco.osgon.files.json;
 
 import com.google.gson.JsonObject;
-import dev.httpmarco.osgon.files.configuration.gson.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,15 +8,15 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class JsonDocument {
+public class JsonObjectSerializer {
 
     private JsonObject jsonObject = new JsonObject();
 
-    public JsonDocument(String gsonObject) {
+    public JsonObjectSerializer(String gsonObject) {
         this.jsonObject = JsonUtils.getGson().fromJson(gsonObject, JsonObject.class);
     }
 
-    public JsonDocument append(String key, String value) {
+    public JsonObjectSerializer append(String key, String value) {
         jsonObject.addProperty(key, value);
         return this;
     }
@@ -26,7 +25,7 @@ public class JsonDocument {
         return jsonObject.get(key).getAsString();
     }
 
-    public JsonDocument append(String key, int value) {
+    public JsonObjectSerializer append(String key, int value) {
         jsonObject.addProperty(key, value);
         return this;
     }
@@ -35,7 +34,7 @@ public class JsonDocument {
         return jsonObject.get(key).getAsInt();
     }
 
-    public JsonDocument append(String key, double value) {
+    public JsonObjectSerializer append(String key, double value) {
         jsonObject.addProperty(key, value);
         return this;
     }
@@ -44,7 +43,7 @@ public class JsonDocument {
         return jsonObject.get(key).getAsDouble();
     }
 
-    public JsonDocument append(String key, long value) {
+    public JsonObjectSerializer append(String key, long value) {
         jsonObject.addProperty(key, value);
         return this;
     }
@@ -53,7 +52,7 @@ public class JsonDocument {
         return jsonObject.get(key).getAsLong();
     }
 
-    public JsonDocument append(String key, boolean value) {
+    public JsonObjectSerializer append(String key, boolean value) {
         jsonObject.addProperty(key, value);
         return this;
     }
@@ -62,13 +61,13 @@ public class JsonDocument {
         return jsonObject.get(key).getAsBoolean();
     }
 
-    public JsonDocument append(String key, Object value) {
+    public JsonObjectSerializer append(String key, Object value) {
         append(key, JsonUtils.toJson(value));
         return this;
     }
 
     public <T> T readObject(String key, Class<T> clazz) {
-        return JsonUtils.fromPrettyJson(readString(key), clazz);
+        return JsonUtils.fromJson(readString(key), clazz);
     }
 
     @Override
