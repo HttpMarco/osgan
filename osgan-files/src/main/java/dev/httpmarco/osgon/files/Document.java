@@ -1,6 +1,5 @@
 package dev.httpmarco.osgon.files;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
