@@ -13,7 +13,7 @@ public class JsonDocument<T> extends Document<T> {
 
     @SneakyThrows
     public JsonDocument(T defaultValue, Path path, TypeAdapter<?>... typeAdapters) {
-        super(defaultValue, path);
+        super(path, defaultValue);
 
         var builder = new GsonBuilder().setExclusionStrategies(new JsonByteExclusionStrategy())
                 .disableHtmlEscaping()
@@ -24,6 +24,7 @@ public class JsonDocument<T> extends Document<T> {
         }
 
         this.gson = builder.create();
+        this.initialize();
     }
 
     @Override

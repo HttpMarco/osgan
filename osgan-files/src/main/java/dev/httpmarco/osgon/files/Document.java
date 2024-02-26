@@ -1,5 +1,6 @@
 package dev.httpmarco.osgon.files;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
@@ -10,16 +11,14 @@ import java.util.function.Consumer;
 
 @Getter
 @Accessors(fluent = true)
+@AllArgsConstructor
 public abstract class Document<T> {
 
     private final Path path;
     private T value;
 
     @SneakyThrows
-    public Document(T defaultValue, Path path) {
-        this.value = defaultValue;
-        this.path = path;
-
+    protected void initialize() {
         if (Files.exists(path)) {
             value(documentToString(Files.readString(path)));
         } else {

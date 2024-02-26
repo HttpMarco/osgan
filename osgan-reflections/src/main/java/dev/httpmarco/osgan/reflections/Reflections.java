@@ -1,5 +1,6 @@
 package dev.httpmarco.osgan.reflections;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
@@ -8,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class Reflections<T> {
 
     private final Class<T> clazz;
@@ -15,6 +17,11 @@ public class Reflections<T> {
 
     public static <D> Reflections<D> of(Class<D> clazz) {
         return new Reflections<>(clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <D> Reflections<D> of(D value) {
+        return new Reflections<>((Class<D>) value.getClass(), value);
     }
 
     public Reflections<T> withValue(Object value) {
