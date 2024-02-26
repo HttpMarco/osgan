@@ -5,8 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import dev.httpmarco.osgon.files.Document;
 import lombok.SneakyThrows;
-
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class JsonDocument<T> extends Document<T> {
@@ -14,7 +12,6 @@ public class JsonDocument<T> extends Document<T> {
     private final Gson gson;
 
     @SneakyThrows
-    @SuppressWarnings("unchecked")
     public JsonDocument(T defaultValue, Path path, TypeAdapter<?>... typeAdapters) {
         super(defaultValue, path);
 
@@ -27,15 +24,16 @@ public class JsonDocument<T> extends Document<T> {
         }
 
         this.gson = builder.create();
-
-        if (Files.exists(path)) {
-            value((T) gson.fromJson(Files.readString(path()), defaultValue.getClass()));
-        }
     }
 
-    @SneakyThrows
     @Override
-    public void updateDocument() {
-        Files.writeString(path(), gson.toJson(value()));
+    public String stringToDocument() {
+        return gson.toJson(this.value());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T documentToString(String stringValue) {
+        return (T) gson.fromJson(stringValue, value().getClass());
     }
 }

@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 @Getter
 @Accessors(fluent = true)
@@ -14,11 +15,16 @@ public abstract class Document<T> {
     private final Path path;
     private T value;
 
+    @SneakyThrows
     public Document(T defaultValue, Path path) {
         this.value = defaultValue;
         this.path = path;
 
-        this.updateDocument();
+        if (Files.exists(path)) {
+            value(documentToString(Files.readString(path)));
+        } else {
+            this.updateDocument();
+        }
     }
 
     public void value(T value) {
@@ -30,7 +36,19 @@ public abstract class Document<T> {
         this.updateDocument();
     }
 
-    public abstract void updateDocument();
+    public void append(Consumer<T> currentValue) {
+        currentValue.accept(this.value);
+        this.updateDocument();
+    }
+
+    public abstract String stringToDocument();
+
+    public abstract T documentToString(String stringValue);
+
+    @SneakyThrows
+    public void updateDocument() {
+        Files.writeString(this.path, this.stringToDocument());
+    }
 
     @SneakyThrows
     public void delete() {
