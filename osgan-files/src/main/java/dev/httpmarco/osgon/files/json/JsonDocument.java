@@ -25,6 +25,7 @@ public class JsonDocument<T> extends Document<T> {
                 .setPrettyPrinting();
 
         for (var adapter : typeAdapters) {
+            builder.registerTypeHierarchyAdapter(adapter.type(), adapter);
             builder.registerTypeAdapter(adapter.type(), adapter);
         }
 

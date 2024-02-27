@@ -11,7 +11,7 @@ allprojects {
 
 
     group = "dev.httpmarco"
-    version = "1.0.21-SNAPSHOT"
+    version = "1.0.22-SNAPSHOT"
 
     repositories {
         mavenCentral()
