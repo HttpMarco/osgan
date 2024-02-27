@@ -12,7 +12,7 @@ public class JsonDocument<T> extends Document<T> {
     private final Gson gson;
 
     @SneakyThrows
-    public JsonDocument(T defaultValue, Path path, TypeAdapter<?>... typeAdapters) {
+    public JsonDocument(T defaultValue, Path path, JsonTypeAdapter<?>... typeAdapters) {
         super(path, defaultValue);
 
         var builder = new GsonBuilder().setExclusionStrategies(new JsonByteExclusionStrategy())
@@ -20,7 +20,7 @@ public class JsonDocument<T> extends Document<T> {
                 .setPrettyPrinting();
 
         for (var adapter : typeAdapters) {
-            builder.registerTypeAdapter(adapter.getClass(), adapter);
+            builder.registerTypeAdapter(adapter.type(), adapter);
         }
 
         this.gson = builder.create();
