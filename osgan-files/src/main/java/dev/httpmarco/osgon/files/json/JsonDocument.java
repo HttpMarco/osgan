@@ -4,9 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import dev.httpmarco.osgon.files.Document;
+import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
+
 import java.nio.file.Path;
 
+@Getter
+@Accessors(fluent = true)
 public class JsonDocument<T> extends Document<T> {
 
     private final Gson gson;
