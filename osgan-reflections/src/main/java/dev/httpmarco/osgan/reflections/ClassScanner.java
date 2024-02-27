@@ -1,4 +1,4 @@
-package dev.httpmarco.osgan.reflections.scanner;
+package dev.httpmarco.osgan.reflections;
 
 import dev.httpmarco.osgan.reflections.exceptions.ScannerException;
 import lombok.AccessLevel;
