@@ -24,6 +24,11 @@ public class Reflections<T> {
     }
 
     @SuppressWarnings("unchecked")
+    public static <D> Reflections<D> of(Field field) {
+        return new Reflections<D>((Class<D>) field.getType(), field, null);
+    }
+
+    @SuppressWarnings("unchecked")
     public static <D> Reflections<D> of(D value) {
         return new Reflections<>((Class<D>) value.getClass(), null, value);
     }
@@ -48,9 +53,9 @@ public class Reflections<T> {
     public Class<?>[] generics() {
         assert field != null;
         var genericType = field.getGenericType();
-        if(genericType instanceof ParameterizedType parameterizedType) {
+        if (genericType instanceof ParameterizedType parameterizedType) {
             return Arrays.stream(parameterizedType.getActualTypeArguments()).map(type -> (Class<?>) type).toArray(value -> new Class<?>[value]);
-        } else{
+        } else {
             throw new UnsupportedOperationException("Cannot read generic from field: " + field.getName());
         }
     }
