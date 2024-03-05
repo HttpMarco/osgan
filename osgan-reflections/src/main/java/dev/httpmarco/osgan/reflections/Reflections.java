@@ -7,12 +7,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class Reflections<T> {
 
     private final Class<T> clazz;
+
+    private @Nullable Field field;
     private @Nullable T value;
 
     public static <D> Reflections<D> of(Class<D> clazz) {
@@ -21,11 +25,16 @@ public class Reflections<T> {
 
     @SuppressWarnings("unchecked")
     public static <D> Reflections<D> of(D value) {
-        return new Reflections<>((Class<D>) value.getClass(), value);
+        return new Reflections<>((Class<D>) value.getClass(), null, value);
     }
 
     public Reflections<T> withValue(Object value) {
         this.value = clazz.cast(value);
+        return this;
+    }
+
+    public Reflections<T> withField(Field field) {
+        this.field = field;
         return this;
     }
 
@@ -34,6 +43,16 @@ public class Reflections<T> {
         var field = this.clazz.getDeclaredField(id);
         field.setAccessible(true);
         return field;
+    }
+
+    public Class<?>[] generics() {
+        assert field != null;
+        var genericType = field.getGenericType();
+        if(genericType instanceof ParameterizedType parameterizedType) {
+            return Arrays.stream(parameterizedType.getActualTypeArguments()).map(type -> (Class<?>) type).toArray(value -> new Class<?>[value]);
+        } else{
+            throw new UnsupportedOperationException("Cannot read generic from field: " + field.getName());
+        }
     }
 
     @SneakyThrows
