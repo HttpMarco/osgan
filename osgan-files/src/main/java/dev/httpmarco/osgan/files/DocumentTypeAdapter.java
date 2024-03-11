@@ -1,4 +1,4 @@
-package dev.httpmarco.osgon.files;
+package dev.httpmarco.osgan.files;
 
 public interface DocumentTypeAdapter<T> {
 

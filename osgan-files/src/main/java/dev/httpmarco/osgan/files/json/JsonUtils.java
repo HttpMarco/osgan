@@ -1,4 +1,4 @@
-package dev.httpmarco.osgon.files.json;
+package dev.httpmarco.osgan.files.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
