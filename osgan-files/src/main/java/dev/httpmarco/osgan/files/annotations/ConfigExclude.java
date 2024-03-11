@@ -1,4 +1,4 @@
-package dev.httpmarco.osgon.files.annotations;
+package dev.httpmarco.osgan.files.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

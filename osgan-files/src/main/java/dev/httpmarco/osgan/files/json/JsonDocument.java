@@ -1,9 +1,8 @@
-package dev.httpmarco.osgon.files.json;
+package dev.httpmarco.osgan.files.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import dev.httpmarco.osgon.files.Document;
+import dev.httpmarco.osgan.files.Document;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
