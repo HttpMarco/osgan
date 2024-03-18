@@ -1,18 +1,22 @@
-package dev.httpmarco.osgon.files.json;
+package dev.httpmarco.osgan.files.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import dev.httpmarco.osgon.files.Document;
+import dev.httpmarco.osgan.files.Document;
+import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
+
 import java.nio.file.Path;
 
+@Getter
+@Accessors(fluent = true)
 public class JsonDocument<T> extends Document<T> {
 
     private final Gson gson;
 
     @SneakyThrows
-    public JsonDocument(T defaultValue, Path path, TypeAdapter<?>... typeAdapters) {
+    public JsonDocument(T defaultValue, Path path, JsonTypeAdapter<?>... typeAdapters) {
         super(path, defaultValue);
 
         var builder = new GsonBuilder().setExclusionStrategies(new JsonByteExclusionStrategy())
@@ -20,7 +24,8 @@ public class JsonDocument<T> extends Document<T> {
                 .setPrettyPrinting();
 
         for (var adapter : typeAdapters) {
-            builder.registerTypeAdapter(adapter.getClass(), adapter);
+            builder.registerTypeHierarchyAdapter(adapter.type(), adapter);
+            builder.registerTypeAdapter(adapter.type(), adapter);
         }
 
         this.gson = builder.create();

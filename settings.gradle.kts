@@ -1,4 +1,4 @@
-rootProject.name = "osgon"
+rootProject.name = "osgan"
 include("osgan-utils")
 include("osgan-reflections")
 include("osgan-files")
