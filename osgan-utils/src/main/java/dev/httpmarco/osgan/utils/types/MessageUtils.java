@@ -3,6 +3,7 @@ package dev.httpmarco.osgan.utils.types;
 import dev.httpmarco.osgan.utils.Patterns;
 import dev.httpmarco.osgan.utils.RandomUtils;
 import dev.httpmarco.osgan.utils.Utils;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -11,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
-public class MessageUtils {
+public final class MessageUtils {
 
     private static final String ALPHABET = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -23,6 +24,19 @@ public class MessageUtils {
         }
 
         return builder.toString();
+    }
+
+    public static int countMatches(@NotNull final CharSequence str, final char ch) {
+        if (str.isEmpty()) {
+            return 0;
+        }
+        int count = 0;
+        for (int i = 0; i < str.length(); i++) {
+            if (ch == str.charAt(i)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public static String replaceLast(String string, String substring, String replacement) {
