@@ -1,6 +1,6 @@
 package dev.httpmarco.osgan.utils.types;
 
-public class NumberUtils {
+public final class NumberUtils {
 
     public static boolean isNumber(Class<?> clazz) {
         return Number.class.isAssignableFrom(clazz);

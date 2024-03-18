@@ -1,6 +1,6 @@
 package dev.httpmarco.osgan.utils.types;
 
-public class EnumUtils {
+public final class EnumUtils {
 
     public static <E extends Enum<E>> boolean isValidEnum(Class<E> enumClass, String value) {
         return getEnum(enumClass, value) != null;
