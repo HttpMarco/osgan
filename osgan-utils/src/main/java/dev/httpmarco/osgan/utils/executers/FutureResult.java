@@ -9,20 +9,20 @@ import java.util.concurrent.TimeUnit;
 
 @Setter @Getter
 @Accessors(fluent = true)
-public class ThreadAsyncExecutor<E>{
+public class FutureResult<E>{
 
     private final CompletableFuture<E> completableFuture;
     private final long timeout = 5;
 
     @SuppressWarnings("unchecked")
-    public ThreadAsyncExecutor() {
+    public FutureResult() {
         this.completableFuture = (CompletableFuture<E>) new CompletableFuture<>().exceptionally(throwable -> {
             throw new RuntimeException(throwable);
         });
     }
 
-    public static <E> ThreadAsyncExecutor<E> of(CompletableFuture<E> future) {
-        var executor = new ThreadAsyncExecutor<E>();
+    public static <E> FutureResult<E> of(CompletableFuture<E> future) {
+        var executor = new FutureResult<E>();
         future.whenComplete((response, throwable) -> {
             if(throwable != null) {
                 throw new RuntimeException(throwable);
@@ -42,5 +42,9 @@ public class ThreadAsyncExecutor<E>{
         } catch (Exception e) {
             return defaultValue;
         }
+    }
+
+    public void fail(Throwable throwable) {
+        this.completableFuture.completeExceptionally(throwable);
     }
 }
