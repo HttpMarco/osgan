@@ -9,42 +9,13 @@ import java.util.concurrent.TimeUnit;
 
 @Setter @Getter
 @Accessors(fluent = true)
-public class FutureResult<E>{
+public class FutureResult<E> extends CompletableFuture<E> {
 
-    private final CompletableFuture<E> completableFuture;
-    private final long timeout = 5;
-
-    @SuppressWarnings("unchecked")
-    public FutureResult() {
-        this.completableFuture = (CompletableFuture<E>) new CompletableFuture<>().exceptionally(throwable -> {
-            throw new RuntimeException(throwable);
-        });
-    }
-
-    public static <E> FutureResult<E> of(CompletableFuture<E> future) {
-        var executor = new FutureResult<E>();
-        future.whenComplete((response, throwable) -> {
-            if(throwable != null) {
-                throw new RuntimeException(throwable);
-            }
-            executor.complete(response);
-        });
-        return executor;
-    }
-
-    public void complete(E response) {
-        completableFuture.complete(response);
-    }
-
-    public E sync(E defaultValue) {
+    public E sync(E defaultValue, long secondTimeout) {
         try {
-            return completableFuture.get(timeout, TimeUnit.SECONDS);
+            return get(secondTimeout, TimeUnit.SECONDS);
         } catch (Exception e) {
             return defaultValue;
         }
-    }
-
-    public void fail(Throwable throwable) {
-        this.completableFuture.completeExceptionally(throwable);
     }
 }

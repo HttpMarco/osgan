@@ -11,6 +11,13 @@ public class ClientTest {
                 .withPort(80)
                 .withConnectTimeout(500)
                 .createAndStart();
+
+        try {
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         assert true;
     }
 }
