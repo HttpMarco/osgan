@@ -18,15 +18,13 @@ import org.jetbrains.annotations.NotNull;
 public final class NettyClient extends CommunicationComponent<ClientMetadata> {
 
     private final Bootstrap bootstrap;
-    private FutureResult<Void> connectionFuture;
-    private final EventLoopGroup eventLoopGroup = NetworkUtils.createEventLoopGroup(0);
     private final ReconnectQueue reconnectQueue = new ReconnectQueue(this);
 
     public NettyClient(ClientMetadata metadata) {
-        super(metadata);
+        super(metadata, NetworkUtils.createEventLoopGroup(0));
 
         this.bootstrap = new Bootstrap()
-                .group(eventLoopGroup)
+                .group(bossGroup())
                 .channelFactory(NetworkUtils::createChannelFactory)
                 .handler(new NettyClientHandler())
                 .option(ChannelOption.AUTO_READ, true)
@@ -46,21 +44,21 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
     }
 
     public void connect() {
-        this.connectionFuture = new FutureResult<>();
+        this.connectionFuture(new FutureResult<>());
 
-        bootstrap.connect(metadata().hostname(), metadata().port()).addListener(future -> {
+        this.bootstrap.connect(metadata().hostname(), metadata().port()).addListener(future -> {
             if (future.isSuccess()) {
                 if (metadata().hasReconnection()) {
                     this.reconnectQueue.interrupt();
                 }
-                this.connectionFuture.complete(null);
+                this.connectionFuture().complete(null);
                 return;
             }
             if (metadata().hasReconnection()) {
                 this.reconnectQueue.start();
             } else {
-                this.connectionFuture.completeExceptionally(future.cause());
-                this.connectionFuture = null;
+                this.connectionFuture().completeExceptionally(future.cause());
+                this.connectionFuture(null);
             }
         });
     }

@@ -12,16 +12,13 @@ import org.jetbrains.annotations.NotNull;
 
 public final class NettyServer extends CommunicationComponent<ServerMetadata> {
 
-    private final MultithreadEventLoopGroup bossGroup = NetworkUtils.createEventLoopGroup(1);
     private final MultithreadEventLoopGroup workerGroup = NetworkUtils.createEventLoopGroup(0);
 
     public NettyServer(ServerMetadata metadata) {
-        super(metadata);
-    }
+        super(metadata, NetworkUtils.createEventLoopGroup(1));
 
-    public void initialize() {
         var bootstrap = new ServerBootstrap()
-                .group(bossGroup, workerGroup)
+                .group(bossGroup(), workerGroup)
                 .channelFactory(NetworkUtils.generateChannelFactory())
                 .childHandler(new NetworkChannelInitializer())
                 .childOption(ChannelOption.TCP_NODELAY, true)
@@ -31,6 +28,7 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
         if (Epoll.isTcpFastOpenServerSideAvailable()) {
             bootstrap.option(ChannelOption.TCP_FASTOPEN, 3);
         }
+        
         bootstrap.bind(metadata().hostname(), metadata().port()).addListener(handleConnectionRelease());
     }
 

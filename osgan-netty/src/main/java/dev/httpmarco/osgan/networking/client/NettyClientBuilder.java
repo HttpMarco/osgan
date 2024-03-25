@@ -4,7 +4,7 @@ import dev.httpmarco.osgan.networking.AbstractCommunicationComponentBuilder;
 
 import java.util.concurrent.TimeUnit;
 
-public class NettyClientBuilder extends AbstractCommunicationComponentBuilder<NettyClient, NettyClientBuilder> {
+public final class NettyClientBuilder extends AbstractCommunicationComponentBuilder<NettyClient, NettyClientBuilder> {
 
     private int connectTimeout = 5000;
     private long reconnectSchedule = -1;
