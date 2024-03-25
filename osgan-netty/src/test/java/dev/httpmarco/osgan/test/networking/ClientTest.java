@@ -9,13 +9,13 @@ public class ClientTest {
 
     @Test
     public void handle() {
-        NettyClient client = NettyClient.builder()
+        var client = NettyClient.builder()
                 .withPort(80)
                 .withConnectTimeout(500)
                 //.withReconnect(TimeUnit.MINUTES, 2)
                 .build();
 
-        while (true) {
+        while (client.isAlive()) {
         }
     }
 }

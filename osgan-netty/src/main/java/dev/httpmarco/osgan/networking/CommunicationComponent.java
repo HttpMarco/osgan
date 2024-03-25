@@ -30,4 +30,12 @@ public abstract class CommunicationComponent<M extends Metadata> {
             }
         };
     }
+
+    public boolean isConnected() {
+        return connectionFuture.isDone();
+    }
+
+    public boolean isAlive() {
+        return !bossGroup.isShutdown() && !bossGroup.isTerminated() && !bossGroup.isShuttingDown();
+    }
 }

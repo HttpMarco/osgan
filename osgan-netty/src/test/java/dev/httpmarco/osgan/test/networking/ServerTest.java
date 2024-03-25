@@ -7,9 +7,9 @@ public class ServerTest {
 
     @Test
     public void handle() {
-        NettyServer nettyServer = NettyServer.builder().build();
+        var server = NettyServer.builder().build();
 
-        while (true) {
+        while (server.isAlive()) {
         }
     }
 }
