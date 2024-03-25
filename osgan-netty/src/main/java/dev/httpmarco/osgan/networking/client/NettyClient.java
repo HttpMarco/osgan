@@ -1,5 +1,8 @@
 package dev.httpmarco.osgan.networking.client;
 
+import dev.httpmarco.osgan.networking.client.builder.NettyClientBuilder;
+import dev.httpmarco.osgan.networking.client.metadata.NettyClientMeta;
+import dev.httpmarco.osgan.networking.client.queue.ReconnectQueue;
 import dev.httpmarco.osgan.networking.utils.NetworkUtils;
 import dev.httpmarco.osgan.utils.executers.FutureResult;
 import io.netty5.bootstrap.Bootstrap;
@@ -20,6 +23,8 @@ public final class NettyClient {
 
     private FutureResult<Void> connectionFuture;
     private final EventLoopGroup eventLoopGroup = NetworkUtils.createEventLoopGroup(0);
+
+    private final ReconnectQueue reconnectQueue = new ReconnectQueue(this);
 
     @Contract(value = " -> new", pure = true)
     public static @NotNull NettyClientBuilder builder() {
@@ -42,19 +47,34 @@ public final class NettyClient {
         if (Epoll.isTcpFastOpenClientSideAvailable()) {
             bootstrap.option(ChannelOption.TCP_FASTOPEN_CONNECT, true);
         }
-
         this.connect();
-        new ReconnectQueue(this).start();
     }
 
     public void connect() {
         this.connectionFuture = new FutureResult<>();
+
         bootstrap.connect(meta.hostname(), meta.port()).addListener(future -> {
             if (future.isSuccess()) {
-                connectionFuture.complete(null);
+                if(meta.hasReconnection()) {
+                    this.reconnectQueue.getStackTrace();
+                }
+                this.connectionFuture.complete(null);
                 return;
             }
-            connectionFuture.completeExceptionally(future.cause());
+            if(meta.hasReconnection()) {
+                this.reconnectQueue.start();
+            } else {
+                this.connectionFuture.completeExceptionally(future.cause());
+                this.connectionFuture = null;
+            }
         });
+    }
+
+    public boolean isAlive() {
+        return this.connectionFuture != null;
+    }
+
+    public enum Event {
+        CONNECT, DISCONNECT, TRY_RECONNECT
     }
 }

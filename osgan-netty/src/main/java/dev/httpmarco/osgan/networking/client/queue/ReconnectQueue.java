@@ -1,10 +1,11 @@
-package dev.httpmarco.osgan.networking.client;
+package dev.httpmarco.osgan.networking.client.queue;
 
+import dev.httpmarco.osgan.networking.client.NettyClient;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
 @RequiredArgsConstructor
-public class ReconnectQueue extends Thread {
+public final class ReconnectQueue extends Thread {
 
     private static final long RECONNECT_TIMEOUT = 5000;
     private final NettyClient nettyClient;
