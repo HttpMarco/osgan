@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Accessors(fluent = true)
 @AllArgsConstructor
-public class Metadata {
+public abstract class Metadata {
 
     // connection host address
     private String hostname;

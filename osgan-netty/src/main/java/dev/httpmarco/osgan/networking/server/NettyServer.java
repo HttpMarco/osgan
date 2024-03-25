@@ -1,7 +1,7 @@
 package dev.httpmarco.osgan.networking.server;
 
 import dev.httpmarco.osgan.networking.CommunicationComponent;
-import dev.httpmarco.osgan.networking.NetworkChannelInitializer;
+import dev.httpmarco.osgan.networking.ChannelInitializer;
 import dev.httpmarco.osgan.networking.NetworkUtils;
 import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.ChannelOption;
@@ -20,7 +20,7 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
         var bootstrap = new ServerBootstrap()
                 .group(bossGroup(), workerGroup)
                 .channelFactory(NetworkUtils.generateChannelFactory())
-                .childHandler(new NetworkChannelInitializer())
+                .childHandler(new ChannelInitializer())
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.AUTO_READ, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
@@ -28,7 +28,7 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
         if (Epoll.isTcpFastOpenServerSideAvailable()) {
             bootstrap.option(ChannelOption.TCP_FASTOPEN, 3);
         }
-        
+
         bootstrap.bind(metadata().hostname(), metadata().port()).addListener(handleConnectionRelease());
     }
 
