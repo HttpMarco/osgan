@@ -1,4 +1,4 @@
-package dev.httpmarco.osgan.networking.metadata;
+package dev.httpmarco.osgan.networking;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

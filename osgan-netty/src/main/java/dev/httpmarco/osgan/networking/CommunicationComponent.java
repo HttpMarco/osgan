@@ -1,6 +1,5 @@
 package dev.httpmarco.osgan.networking;
 
-import dev.httpmarco.osgan.networking.metadata.Metadata;
 import dev.httpmarco.osgan.utils.executers.FutureResult;
 import io.netty5.channel.Channel;
 import io.netty5.util.concurrent.FutureListener;

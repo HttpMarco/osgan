@@ -1,8 +1,6 @@
-package dev.httpmarco.osgan.networking.client.builder;
+package dev.httpmarco.osgan.networking.client;
 
 import dev.httpmarco.osgan.networking.AbstractCommunicationComponentBuilder;
-import dev.httpmarco.osgan.networking.client.NettyClient;
-import dev.httpmarco.osgan.networking.client.ClientMetadata;
 
 import java.util.concurrent.TimeUnit;
 

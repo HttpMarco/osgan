@@ -1,7 +1,6 @@
 package dev.httpmarco.osgan.networking.client;
 
 import dev.httpmarco.osgan.networking.CommunicationComponent;
-import dev.httpmarco.osgan.networking.client.builder.NettyClientBuilder;
 import dev.httpmarco.osgan.networking.client.queue.ReconnectQueue;
 import dev.httpmarco.osgan.networking.NetworkUtils;
 import dev.httpmarco.osgan.utils.executers.FutureResult;

@@ -1,11 +1,8 @@
 package dev.httpmarco.osgan.networking.client;
 
-import dev.httpmarco.osgan.networking.metadata.Metadata;
+import dev.httpmarco.osgan.networking.Metadata;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @Accessors(fluent = true)
