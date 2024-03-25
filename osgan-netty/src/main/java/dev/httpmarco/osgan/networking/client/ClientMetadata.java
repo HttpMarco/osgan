@@ -1,8 +1,6 @@
-package dev.httpmarco.osgan.networking.client.metadata;
+package dev.httpmarco.osgan.networking.client;
 
-import dev.httpmarco.osgan.networking.client.NettyClient;
 import dev.httpmarco.osgan.networking.metadata.Metadata;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -11,22 +9,18 @@ import java.util.Map;
 
 @Getter
 @Accessors(fluent = true)
-public final class NettyClientMeta extends Metadata {
+public final class ClientMetadata extends Metadata {
 
     // if connection is not present, time for reconnect scheduling
     private final long reconnectSchedule;
     // time for wait a successful connection response
     private final int connectionTimeout;
 
-    private final Map<NettyClient.Event, List<Runnable>> clientEvents;
-
-    public NettyClientMeta(String hostname, int port, long reconnectSchedule, int connectionTimeout, Map<NettyClient.Event, List<Runnable>> clientEvents) {
+    public ClientMetadata(String hostname, int port, long reconnectSchedule, int connectionTimeout) {
         super(hostname, port);
         this.reconnectSchedule = reconnectSchedule;
         this.connectionTimeout = connectionTimeout;
-        this.clientEvents = clientEvents;
     }
-
 
     public boolean hasReconnection() {
         return this.reconnectSchedule != -1;

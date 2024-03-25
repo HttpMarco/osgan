@@ -13,16 +13,9 @@ public class ClientTest {
                 .withPort(80)
                 .withConnectTimeout(500)
                 //.withReconnect(TimeUnit.MINUTES, 2)
-                .listen(NettyClient.Event.CONNECT, () -> {
+                .build();
 
-                }).listen(NettyClient.Event.DISCONNECT, () -> {
-
-                }).listen(NettyClient.Event.TRY_RECONNECT, () -> {
-
-                })
-                .createAndStart();
-
-        while (client.isAlive()) {
+        while (true) {
         }
     }
 }

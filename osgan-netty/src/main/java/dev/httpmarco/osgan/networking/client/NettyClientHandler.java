@@ -7,7 +7,7 @@ import io.netty5.channel.SimpleChannelInboundHandler;
 public class NettyClientHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
-    protected void messageReceived(ChannelHandlerContext channelHandlerContext, Packet packet) throws Exception {
+    protected void messageReceived(ChannelHandlerContext channelHandlerContext, Packet packet) {
 
     }
 }
