@@ -1,19 +1,18 @@
 package dev.httpmarco.osgan.networking.codec;
 
+import dev.httpmarco.osgan.networking.buffer.PacketBuffer;
 import dev.httpmarco.osgan.networking.packet.Packet;
-import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
-import io.netty5.handler.codec.ByteToMessageCodec;
 
-public final class ByteToPacketCodec extends ByteToMessageCodec<Packet> {
+public final class ByteToPacketCodec extends AbstractByteToPacketBufferCodec {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, Packet msg, Buffer out) throws Exception {
+    public void encode(ChannelHandlerContext ctx, Packet msg, PacketBuffer buffer) {
 
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, Buffer in) throws Exception {
+    public void decode(ChannelHandlerContext ctx, PacketBuffer buffer) {
 
     }
 }
