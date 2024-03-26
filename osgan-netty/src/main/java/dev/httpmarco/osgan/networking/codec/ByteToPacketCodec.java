@@ -8,11 +8,12 @@ public final class ByteToPacketCodec extends AbstractByteToPacketBufferCodec {
 
     @Override
     public void encode(ChannelHandlerContext ctx, Packet msg, PacketBuffer buffer) {
+        buffer.writeString(msg.getClass().getName());
 
     }
 
     @Override
     public void decode(ChannelHandlerContext ctx, PacketBuffer buffer) {
-
+        var className = buffer.readString();
     }
 }
