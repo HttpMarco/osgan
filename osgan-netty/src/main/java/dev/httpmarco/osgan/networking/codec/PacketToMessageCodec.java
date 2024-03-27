@@ -9,14 +9,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.UUID;
+import java.util.*;
 
 public class PacketToMessageCodec extends AbstractMessageToPacket {
 
     @Override
-    public void encode(ChannelHandlerContext ctx, Packet msg, @NotNull CodecBuffer buffer) throws Exception {
+    public void encode(ChannelHandlerContext ctx, Packet msg, @NotNull CodecBuffer buffer) {
         try {
-            buffer.writeLong(System.currentTimeMillis());
             encodeObject(buffer, msg);
         } catch (Exception e) {
             e.printStackTrace();
@@ -34,20 +33,29 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
             if (encodeParameter(buffer, field.get(packet))) {
                 continue;
             }
-
-            if (field.isAnnotationPresent(PacketIncludeObject.class) || field.getType().isAnnotationPresent(PacketIncludeObject.class)) {
+            var type = field.getType();
+            if (field.isAnnotationPresent(PacketIncludeObject.class) || type.isAnnotationPresent(PacketIncludeObject.class)) {
                 encodeObject(buffer, field.get(packet));
-            } else if (field.getType().isArray()) {
+            } else if (type.isArray()) {
                 var array = (Object[]) field.get(packet);
                 buffer.writeInt(array.length);
-                for (var obj : array) {
-                    if (this.encodeParameter(buffer, obj)) {
+                for (var object : array) {
+                    if (this.encodeParameter(buffer, object)) {
                         continue;
                     }
-                    encodeObject(buffer, obj);
+                    encodeObject(buffer, object);
+                }
+            } else if (Collection.class.isAssignableFrom(type)) {
+                var collection = (Collection<?>) field.get(packet);
+                buffer.writeInt(collection.size());
+                for (var object : collection) {
+                    if (this.encodeParameter(buffer, object)) {
+                        continue;
+                    }
+                    encodeObject(buffer, object);
                 }
             } else {
-                System.err.println("Encode - Unsupported type: " + field.getType().getName() + " in packet " + packet.getClass().getName());
+                System.err.println("Encode - Unsupported type: " + type.getName() + " in packet " + packet.getClass().getName());
             }
         }
     }
@@ -91,11 +99,9 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
     @Override
     public void decode(@NotNull ChannelHandlerContext ctx, @NotNull CodecBuffer buffer) {
         try {
-            var time = buffer.readLong();
             var packet = this.decodeObject(buffer);
             buffer.resetBuffer();
             ctx.fireChannelRead(packet);
-            System.err.println("time: " + (System.currentTimeMillis() - time) + "ms");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -111,16 +117,17 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
             }
             field.setAccessible(true);
 
-            var decodeParameter = decodeParameter(buffer, field.getType());
+            var type = field.getType();
+            var decodeParameter = decodeParameter(buffer, type);
             if (decodeParameter != null) {
                 field.set(packet, decodeParameter);
                 continue;
             }
 
-            if (field.isAnnotationPresent(PacketIncludeObject.class) || field.getType().isAnnotationPresent(PacketIncludeObject.class)) {
+            if (field.isAnnotationPresent(PacketIncludeObject.class) || type.isAnnotationPresent(PacketIncludeObject.class)) {
                 field.set(packet, decodeObject(buffer));
-            } else if (field.getType().isArray()) {
-                var array = (Object[]) Array.newInstance(field.getType().getComponentType(), buffer.readInt());
+            } else if (type.isArray()) {
+                var array = (Object[]) Array.newInstance(type.getComponentType(), buffer.readInt());
 
                 for (int i = 0; i < array.length; i++) {
                     var object = decodeParameter(buffer, array.getClass().getComponentType());
@@ -130,14 +137,43 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
                     }
                     array[i] = decodeObject(buffer);
                 }
+                field.set(packet, array);
+            } else if (Collection.class.isAssignableFrom(type)) {
+                var collectionType = new Reflections<>(type).withField(field).generics()[0];
+                Collection<Object> collection;
+
+                if (LinkedHashSet.class.isAssignableFrom(type)) {
+                    collection = new LinkedHashSet<>();
+                } else if (Set.class.isAssignableFrom(type)) {
+                    collection = new HashSet<>();
+                } else if (LinkedList.class.isAssignableFrom(type)) {
+                    collection = new LinkedList<>();
+                } else if (List.class.isAssignableFrom(type)) {
+                    collection = new ArrayList<>();
+                } else {
+                    System.err.println("Decode - Unsupported collection type: " + type.getName() + " in packet " + clazz.getName());
+                    continue;
+                }
+
+                int size = buffer.readInt();
+
+                for (var i = 0; i < size; i++) {
+                    var object = decodeParameter(buffer, collectionType);
+                    if (object != null) {
+                        collection.add(object);
+                        continue;
+                    }
+                    collection.add(decodeObject(buffer));
+                }
+                field.set(packet, collection);
             } else {
-                System.err.println("Decode - Unsupported type: " + field.getType().getName() + " in packet " + clazz.getName());
+                System.err.println("Decode - Unsupported type: " + type.getName() + " in packet " + clazz.getName());
             }
         }
         return packet;
     }
 
-    private @Nullable Object decodeParameter(CodecBuffer buffer, Class<?> type) {
+    private @Nullable Object decodeParameter(CodecBuffer buffer, @NotNull Class<?> type) {
         if (type.equals(String.class)) {
             return buffer.readString();
         } else if (type.equals(Boolean.class) || type.equals(boolean.class)) {

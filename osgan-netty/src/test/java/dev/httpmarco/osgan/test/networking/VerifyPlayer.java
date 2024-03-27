@@ -2,6 +2,7 @@ package dev.httpmarco.osgan.test.networking;
 
 import dev.httpmarco.osgan.networking.annotation.PacketIncludeObject;
 
+import java.util.Collection;
 import java.util.UUID;
 
 @PacketIncludeObject
@@ -15,8 +16,9 @@ public class VerifyPlayer {
     private String forumAccount;
     private String userId;
     private String[] roles;
+    private Collection<String> usernames;
 
-    public VerifyPlayer(UUID uuid, String tsId, String dcId, String rank, boolean toggleBot, String forumAccount, String userId, String[] roles) {
+    public VerifyPlayer(UUID uuid, String tsId, String dcId, String rank, boolean toggleBot, String forumAccount, String userId, String[] roles, Collection<String> usernames) {
         this.uuid = uuid;
         this.tsId = tsId;
         this.dcId = dcId;
@@ -25,5 +27,6 @@ public class VerifyPlayer {
         this.forumAccount = forumAccount;
         this.userId = userId;
         this.roles = roles;
+        this.usernames = usernames;
     }
 }
