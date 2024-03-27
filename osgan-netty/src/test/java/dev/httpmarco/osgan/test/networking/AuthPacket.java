@@ -1,30 +1,13 @@
 package dev.httpmarco.osgan.test.networking;
 
 import dev.httpmarco.osgan.networking.Packet;
-
-import java.util.UUID;
+import dev.httpmarco.osgan.networking.annotation.PacketIncludeObject;
 
 public class AuthPacket implements Packet {
 
-    private String token;
-    private UUID uuid;
-    private Long coins;
-    private Integer level;
-    private Boolean isAdmin;
-    private Double balance;
-    private Float health;
-    private Short age;
-    private Byte ageByte;
+    private VerifyPlayer player;
 
-    public AuthPacket(String token, UUID uuid, Long coins, Integer level, Boolean isAdmin, Double balance, Float health, Short age, Byte ageByte) {
-        this.token = token;
-        this.uuid = uuid;
-        this.coins = coins;
-        this.level = level;
-        this.isAdmin = isAdmin;
-        this.balance = balance;
-        this.health = health;
-        this.age = age;
-        this.ageByte = ageByte;
+    public AuthPacket(VerifyPlayer player) {
+        this.player = player;
     }
 }
