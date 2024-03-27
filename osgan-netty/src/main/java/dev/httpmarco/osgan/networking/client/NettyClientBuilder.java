@@ -6,9 +6,14 @@ import java.util.concurrent.TimeUnit;
 
 public final class NettyClientBuilder extends AbstractCommunicationComponentBuilder<NettyClient, NettyClientBuilder> {
 
+    private String id;
     private int connectTimeout = 5000;
     private long reconnectSchedule = -1;
 
+    public NettyClientBuilder withId(String id) {
+        this.id = id;
+        return this;
+    }
 
     public NettyClientBuilder withConnectTimeout(int connectTimeout) {
         this.connectTimeout = connectTimeout;
@@ -22,6 +27,6 @@ public final class NettyClientBuilder extends AbstractCommunicationComponentBuil
 
     @Override
     public NettyClient build() {
-        return new NettyClient(new ClientMetadata(hostname(), port(), reconnectSchedule, connectTimeout));
+        return new NettyClient(new ClientMetadata(id, hostname(), port(), reconnectSchedule, connectTimeout));
     }
 }
