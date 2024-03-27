@@ -11,11 +11,11 @@ import org.jetbrains.annotations.NotNull;
 public final class CommunicationComponentHandler extends SimpleChannelInboundHandler<Packet> {
 
     private ChannelConsumer onActive, onInactive;
-    private ChannelPacketListener onPacketReceived;
+    private ChannelPacketListener<? extends Packet> onPacketReceived;
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Packet packet) {
-        this.onPacketReceived.listen(new ChannelTransmit(ctx.channel()), packet);
+        this.onPacketReceived.listenWithMapping(new ChannelTransmit(ctx.channel()), packet);
     }
 
     @Override

@@ -19,4 +19,8 @@ public class FutureResult<E> extends CompletableFuture<E> {
             return defaultValue;
         }
     }
+
+    public E sync(E defaultValue) {
+        return sync(defaultValue, 5);
+    }
 }

@@ -1,6 +1,7 @@
 package dev.httpmarco.osgan.networking.server;
 
 import dev.httpmarco.osgan.networking.*;
+import dev.httpmarco.osgan.networking.packet.ChannelTransmitAuthPacket;
 import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
@@ -28,9 +29,14 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                 .channelFactory(NetworkUtils.generateChannelFactory())
                 .childHandler(new ChannelInitializer(CommunicationComponentHandler
                         .builder()
-                        .onActive(transmits::add)
                         .onInactive(transmits::remove)
-                        .onPacketReceived((channel, packet) -> callPacketReceived(channel, (Packet) packet))
+                        .onPacketReceived((channel, packet) -> {
+                            if (packet instanceof ChannelTransmitAuthPacket authPacket) {
+                                transmits.add(new ChannelTransmit(authPacket.id(), channel.channel()));
+                                return;
+                            }
+                            callPacketReceived(channel, packet);
+                        })
                         .build()))
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.AUTO_READ, true)

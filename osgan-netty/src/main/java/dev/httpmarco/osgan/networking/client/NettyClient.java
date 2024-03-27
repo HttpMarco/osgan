@@ -1,6 +1,7 @@
 package dev.httpmarco.osgan.networking.client;
 
 import dev.httpmarco.osgan.networking.*;
+import dev.httpmarco.osgan.networking.packet.ChannelTransmitAuthPacket;
 import dev.httpmarco.osgan.utils.executers.FutureResult;
 import io.netty5.bootstrap.Bootstrap;
 import io.netty5.channel.ChannelOption;
@@ -27,7 +28,10 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                 .channelFactory(NetworkUtils::createChannelFactory)
                 .handler(new ChannelInitializer(CommunicationComponentHandler
                         .builder()
-                        .onActive(it -> this.transmit = it)
+                        .onActive(it -> {
+                            it.sendPacket(new ChannelTransmitAuthPacket(metadata().id()));
+                            this.transmit = it;
+                        })
                         .onInactive(it -> {
                             if ((metadata.hasReconnection())) {
                                 this.reconnectQueue.start();
