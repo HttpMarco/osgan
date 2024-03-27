@@ -13,7 +13,6 @@ public final class ChannelTransmit {
     private Channel channel;
 
     public <P extends Packet> void sendPacket(P object) {
-        System.out.println("Sending packet: " + object);
         channel.writeAndFlush(object);
     }
 }

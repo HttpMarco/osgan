@@ -16,7 +16,7 @@ public abstract class AbstractMessageToPacket extends ByteToMessageCodec<Packet>
         this.decode(ctx, new CodecBuffer(buffer));
     }
 
-    public abstract void encode(ChannelHandlerContext ctx, Packet msg, CodecBuffer buffer);
+    public abstract void encode(ChannelHandlerContext ctx, Packet msg, CodecBuffer buffer) throws Exception;
 
-    public abstract void decode(ChannelHandlerContext ctx, CodecBuffer buffer);
+    public abstract void decode(ChannelHandlerContext ctx, CodecBuffer buffer) throws Exception;
 }

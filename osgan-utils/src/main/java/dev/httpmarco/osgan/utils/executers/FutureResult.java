@@ -7,7 +7,8 @@ import lombok.experimental.Accessors;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-@Setter @Getter
+@Setter
+@Getter
 @Accessors(fluent = true)
 public class FutureResult<E> extends CompletableFuture<E> {
 

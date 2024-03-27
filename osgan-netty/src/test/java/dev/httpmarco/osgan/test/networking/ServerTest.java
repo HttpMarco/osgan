@@ -4,6 +4,8 @@ import dev.httpmarco.osgan.networking.client.NettyClient;
 import dev.httpmarco.osgan.networking.server.NettyServer;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 public class ServerTest {
 
     @Test
@@ -18,7 +20,7 @@ public class ServerTest {
 
         Thread.sleep(1000);
 
-        client.sendPacket(new TestPacket());
+        client.sendPacket(new AuthPacket("test", UUID.randomUUID(), 22L,0,true,0.1,0.0F, (short) 0, (byte) 0));
 
         //client.close();
 

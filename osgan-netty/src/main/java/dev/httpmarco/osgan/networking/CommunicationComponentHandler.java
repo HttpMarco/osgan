@@ -15,7 +15,6 @@ public final class CommunicationComponentHandler extends SimpleChannelInboundHan
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Packet packet) {
-        System.err.println("Received packet: " + packet);
         this.onPacketReceived.listen(new ChannelTransmit(ctx.channel()), packet);
     }
 
