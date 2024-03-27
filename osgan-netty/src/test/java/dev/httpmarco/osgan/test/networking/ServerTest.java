@@ -20,7 +20,7 @@ public class ServerTest {
 
         Thread.sleep(1000);
 
-        client.sendPacket(new AuthPacket(new VerifyPlayer(UUID.randomUUID(), "Marco", "1234", "1234", true, "Marco", "1234")));
+        client.sendPacket(new AuthPacket(new VerifyPlayer(UUID.randomUUID(), "Marco", "1234", "1234", true, "Marco", "1234", new String[]{"admin", "test"})));
 
         Thread.sleep(10000);
     }

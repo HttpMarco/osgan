@@ -6,6 +6,7 @@ import dev.httpmarco.osgan.networking.annotation.PacketIncludeObject;
 import dev.httpmarco.osgan.reflections.Reflections;
 import io.netty5.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.UUID;
 
 public class PacketToMessageCodec extends AbstractMessageToPacket {
@@ -28,32 +29,61 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
                 continue;
             }
             field.setAccessible(true);
-            if (field.getType().equals(String.class)) {
-                buffer.writeString(field.get(packet).toString());
-            } else if (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class)) {
-                buffer.writeBoolean((Boolean) field.get(packet));
-            } else if (field.getType().equals(Long.class) || field.getType().equals(long.class)) {
-                buffer.writeLong((Long) field.get(packet));
-            } else if (field.getType().equals(Short.class) || field.getType().equals(short.class)) {
-                buffer.writeShort((Short) field.get(packet));
-            } else if (field.getType().equals(Integer.class) || field.getType().equals(int.class)) {
-                buffer.writeInt((Integer) field.get(packet));
-            } else if (field.getType().equals(Double.class) || field.getType().equals(double.class)) {
-                buffer.writeDouble((Double) field.get(packet));
-            } else if (field.getType().equals(Float.class) || field.getType().equals(float.class)) {
-                buffer.writeFloat((Float) field.get(packet));
-            } else if (field.getType().equals(Byte.class) || field.getType().equals(byte.class)) {
-                buffer.writeByte((Byte) field.get(packet));
-            } else if (field.getType().equals(UUID.class)) {
-                buffer.writeUUID((UUID) field.get(packet));
-            } else if (field.getType().isEnum()) {
-                buffer.writeEnum((Enum<?>) field.get(packet));
-            } else if (field.isAnnotationPresent(PacketIncludeObject.class) || field.getType().isAnnotationPresent(PacketIncludeObject.class)) {
+            if (encodeParameter(buffer, field.get(packet))) {
+                continue;
+            }
+
+            if (field.isAnnotationPresent(PacketIncludeObject.class) || field.getType().isAnnotationPresent(PacketIncludeObject.class)) {
                 encodeObject(buffer, field.get(packet));
+            } else if (field.getType().isArray()) {
+                var array = (Object[]) field.get(packet);
+                buffer.writeInt(array.length);
+                for (var obj : array) {
+                    if (this.encodeParameter(buffer, obj)) {
+                        continue;
+                    }
+                    encodeObject(buffer, obj);
+                }
             } else {
                 System.err.println("Encode - Unsupported type: " + field.getType().getName() + " in packet " + packet.getClass().getName());
             }
         }
+    }
+
+    private boolean encodeParameter(CodecBuffer buffer, Object parameter) {
+        var type = parameter.getClass();
+        if (type.equals(String.class)) {
+            buffer.writeString(parameter.toString());
+            return true;
+        } else if (type.equals(Boolean.class)) {
+            buffer.writeBoolean((Boolean) parameter);
+            return true;
+        } else if (type.equals(Long.class)) {
+            buffer.writeLong((Long) parameter);
+            return true;
+        } else if (type.equals(Short.class)) {
+            buffer.writeShort((Short) parameter);
+            return true;
+        } else if (type.equals(Integer.class)) {
+            buffer.writeInt((Integer) parameter);
+            return true;
+        } else if (type.equals(Double.class)) {
+            buffer.writeDouble((Double) parameter);
+            return true;
+        } else if (type.equals(Float.class)) {
+            buffer.writeFloat((Float) parameter);
+            return true;
+        } else if (type.equals(Byte.class)) {
+            buffer.writeByte((Byte) parameter);
+            return true;
+        } else if (type.equals(UUID.class)) {
+            buffer.writeUUID((UUID) parameter);
+            return true;
+        } else if (type.isEnum()) {
+            buffer.writeEnum((Enum<?>) parameter);
+            return true;
+        }
+        return false;
     }
 
     @Override

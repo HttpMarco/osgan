@@ -14,8 +14,9 @@ public class VerifyPlayer {
     private boolean toggleBot;
     private String forumAccount;
     private String userId;
+    private String[] roles;
 
-    public VerifyPlayer(UUID uuid, String tsId, String dcId, String rank, boolean toggleBot, String forumAccount, String userId) {
+    public VerifyPlayer(UUID uuid, String tsId, String dcId, String rank, boolean toggleBot, String forumAccount, String userId, String[] roles) {
         this.uuid = uuid;
         this.tsId = tsId;
         this.dcId = dcId;
@@ -23,5 +24,6 @@ public class VerifyPlayer {
         this.toggleBot = toggleBot;
         this.forumAccount = forumAccount;
         this.userId = userId;
+        this.roles = roles;
     }
 }
