@@ -1,6 +1,5 @@
-package dev.httpmarco.osgan.networking.client.queue;
+package dev.httpmarco.osgan.networking.client;
 
-import dev.httpmarco.osgan.networking.client.NettyClient;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
