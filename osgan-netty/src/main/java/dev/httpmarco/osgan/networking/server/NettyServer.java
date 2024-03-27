@@ -18,11 +18,7 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
         var bootstrap = new ServerBootstrap()
                 .group(bossGroup(), NetworkUtils.createEventLoopGroup(0))
                 .channelFactory(NetworkUtils.generateChannelFactory())
-                .childHandler(new ChannelInitializer(new CommunicationComponentHandler(channel -> {
-                },
-                        channel -> {
-
-                        })))
+                .childHandler(new ChannelInitializer(new CommunicationComponentHandler()))
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.AUTO_READ, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);

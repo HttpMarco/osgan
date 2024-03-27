@@ -28,11 +28,7 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
         this.bootstrap = new Bootstrap()
                 .group(bossGroup())
                 .channelFactory(NetworkUtils::createChannelFactory)
-                .handler(new ChannelInitializer(new CommunicationComponentHandler(channel -> {
-
-                },channel -> {
-
-                })))
+                .handler(new ChannelInitializer(new CommunicationComponentHandler()))
                 .option(ChannelOption.AUTO_READ, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.SO_KEEPALIVE, true)
