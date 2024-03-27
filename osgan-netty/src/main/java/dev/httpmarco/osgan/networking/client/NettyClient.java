@@ -1,6 +1,8 @@
 package dev.httpmarco.osgan.networking.client;
 
+import dev.httpmarco.osgan.networking.ChannelInitializer;
 import dev.httpmarco.osgan.networking.CommunicationComponent;
+import dev.httpmarco.osgan.networking.CommunicationComponentHandler;
 import dev.httpmarco.osgan.networking.client.queue.ReconnectQueue;
 import dev.httpmarco.osgan.networking.NetworkUtils;
 import dev.httpmarco.osgan.utils.executers.FutureResult;
@@ -21,12 +23,16 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
     private final ReconnectQueue reconnectQueue = new ReconnectQueue(this);
 
     public NettyClient(ClientMetadata metadata) {
-        super(metadata, NetworkUtils.createEventLoopGroup(0));
+        super(metadata, 0);
 
         this.bootstrap = new Bootstrap()
                 .group(bossGroup())
                 .channelFactory(NetworkUtils::createChannelFactory)
-                .handler(new NettyClientHandler())
+                .handler(new ChannelInitializer(new CommunicationComponentHandler(channel -> {
+
+                },channel -> {
+
+                })))
                 .option(ChannelOption.AUTO_READ, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.SO_KEEPALIVE, true)
