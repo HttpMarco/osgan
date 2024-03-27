@@ -6,7 +6,9 @@ import dev.httpmarco.osgan.networking.annotation.PacketIncludeObject;
 import dev.httpmarco.osgan.reflections.Reflections;
 import io.netty5.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
 import java.util.UUID;
 
 public class PacketToMessageCodec extends AbstractMessageToPacket {
@@ -87,7 +89,7 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
     }
 
     @Override
-    public void decode(@NotNull ChannelHandlerContext ctx, @NotNull CodecBuffer buffer) throws Exception {
+    public void decode(@NotNull ChannelHandlerContext ctx, @NotNull CodecBuffer buffer) {
         try {
             var time = buffer.readLong();
             var packet = this.decodeObject(buffer);
@@ -99,7 +101,6 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private Object decodeObject(@NotNull CodecBuffer buffer) throws ClassNotFoundException, IllegalAccessException {
         var clazz = Class.forName(buffer.readString());
         var packet = new Reflections<>(clazz).allocate();
@@ -110,28 +111,25 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
             }
             field.setAccessible(true);
 
-            if (field.getType().equals(String.class)) {
-                field.set(packet, buffer.readString());
-            } else if (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class)) {
-                field.set(packet, buffer.readBoolean());
-            } else if (field.getType().equals(Long.class) || field.getType().equals(long.class)) {
-                field.set(packet, buffer.readLong());
-            } else if (field.getType().equals(Short.class) || field.getType().equals(short.class)) {
-                field.set(packet, buffer.readShort());
-            } else if (field.getType().equals(Integer.class) || field.getType().equals(int.class)) {
-                field.set(packet, buffer.readInt());
-            } else if (field.getType().equals(Double.class) || field.getType().equals(double.class)) {
-                field.set(packet, buffer.readDouble());
-            } else if (field.getType().equals(Float.class) || field.getType().equals(float.class)) {
-                field.set(packet, buffer.readFloat());
-            } else if (field.getType().equals(Byte.class) || field.getType().equals(byte.class)) {
-                field.set(packet, buffer.readByte());
-            } else if (field.getType().equals(UUID.class)) {
-                field.set(packet, buffer.readUUID());
-            } else if (field.getType().isEnum()) {
-                field.set(packet, buffer.readEnum((Class<? extends Enum<?>>) field.getType()));
-            } else if (field.isAnnotationPresent(PacketIncludeObject.class) || field.getType().isAnnotationPresent(PacketIncludeObject.class)) {
+            var decodeParameter = decodeParameter(buffer, field.getType());
+            if (decodeParameter != null) {
+                field.set(packet, decodeParameter);
+                continue;
+            }
+
+            if (field.isAnnotationPresent(PacketIncludeObject.class) || field.getType().isAnnotationPresent(PacketIncludeObject.class)) {
                 field.set(packet, decodeObject(buffer));
+            } else if (field.getType().isArray()) {
+                var array = (Object[]) Array.newInstance(field.getType().getComponentType(), buffer.readInt());
+
+                for (int i = 0; i < array.length; i++) {
+                    var object = decodeParameter(buffer, array.getClass().getComponentType());
+                    if (object != null) {
+                        array[i] = object;
+                        continue;
+                    }
+                    array[i] = decodeObject(buffer);
+                }
             } else {
                 System.err.println("Decode - Unsupported type: " + field.getType().getName() + " in packet " + clazz.getName());
             }
@@ -139,4 +137,28 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
         return packet;
     }
 
+    private @Nullable Object decodeParameter(CodecBuffer buffer, Class<?> type) {
+        if (type.equals(String.class)) {
+            return buffer.readString();
+        } else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
+            return buffer.readBoolean();
+        } else if (type.equals(Long.class) || type.equals(long.class)) {
+            return buffer.readLong();
+        } else if (type.equals(Short.class) || type.equals(short.class)) {
+            return buffer.readShort();
+        } else if (type.equals(Integer.class) || type.equals(int.class)) {
+            return buffer.readInt();
+        } else if (type.equals(Double.class) || type.equals(double.class)) {
+            return buffer.readDouble();
+        } else if (type.equals(Float.class) || type.equals(float.class)) {
+            return buffer.readFloat();
+        } else if (type.equals(Byte.class) || type.equals(byte.class)) {
+            return buffer.readByte();
+        } else if (type.equals(UUID.class)) {
+            return buffer.readUUID();
+        } else if (type.isEnum()) {
+            return buffer.readEnum((Class<? extends Enum<?>>) type);
+        }
+        return null;
+    }
 }
