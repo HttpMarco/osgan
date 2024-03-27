@@ -14,12 +14,8 @@ public class ServerTest {
     public void handle() throws InterruptedException {
         var server = NettyServer.builder().build();
 
-        server.listening(AuthPacket.class, (channel, packet) -> {
-            System.err.println("Listener Received packet: " + packet.getPlayer().getTsId());
-            //channel.sendPacket(new AuthPacket(new VerifyPlayer(UUID.randomUUID
-        });
-
         var client = NettyClient.builder()
+                .withId("polo")
                 .withHostname("127.0.0.1")
                 .withConnectTimeout(500)
                 .build();

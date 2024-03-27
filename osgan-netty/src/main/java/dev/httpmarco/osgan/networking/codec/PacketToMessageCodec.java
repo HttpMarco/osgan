@@ -30,7 +30,16 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
             if (field.isAnnotationPresent(PacketIgnore.class)) {
                 continue;
             }
+
             field.setAccessible(true);
+
+            var nullableObject = field.get(packet);
+            buffer.writeBoolean(nullableObject == null);
+
+            if (nullableObject == null) {
+                continue;
+            }
+
             if (encodeParameter(buffer, field.get(packet))) {
                 continue;
             }
@@ -118,6 +127,10 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
                 continue;
             }
             field.setAccessible(true);
+
+            if (buffer.readBoolean()) {
+                continue;
+            }
 
             var type = field.getType();
             var decodeParameter = decodeParameter(buffer, type);

@@ -29,10 +29,11 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                 .channelFactory(NetworkUtils.generateChannelFactory())
                 .childHandler(new ChannelInitializer(CommunicationComponentHandler
                         .builder()
+                        .onActive(this.transmits::add)
                         .onInactive(transmits::remove)
                         .onPacketReceived((channel, packet) -> {
                             if (packet instanceof ChannelTransmitAuthPacket authPacket) {
-                                transmits.add(new ChannelTransmit(authPacket.id(), channel.channel()));
+                                transmits.stream().filter(it -> it.channel().equals(channel.channel())).findFirst().ifPresent(transmit -> transmit.id(authPacket.id()));
                                 return;
                             }
                             callPacketReceived(channel, packet);

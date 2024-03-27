@@ -1,19 +1,16 @@
 package dev.httpmarco.osgan.networking;
 
 import io.netty5.channel.Channel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 @Getter
 @Accessors(fluent = true)
-@AllArgsConstructor
 @RequiredArgsConstructor
 @EqualsAndHashCode(exclude = "id")
 public final class ChannelTransmit {
 
+    @Setter
     private String id = "unknown";
     private final Channel channel;
 

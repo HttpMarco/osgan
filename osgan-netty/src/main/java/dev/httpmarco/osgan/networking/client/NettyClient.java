@@ -29,7 +29,9 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                 .handler(new ChannelInitializer(CommunicationComponentHandler
                         .builder()
                         .onActive(it -> {
-                            it.sendPacket(new ChannelTransmitAuthPacket(metadata().id()));
+                            if (metadata.id() == null) {
+                                it.sendPacket(new ChannelTransmitAuthPacket(metadata().id()));
+                            }
                             this.transmit = it;
                         })
                         .onInactive(it -> {
