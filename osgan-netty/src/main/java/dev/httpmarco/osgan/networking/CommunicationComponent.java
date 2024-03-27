@@ -5,13 +5,11 @@ import io.netty5.channel.Channel;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.util.concurrent.FutureListener;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter
 @Accessors(fluent = true)
-@RequiredArgsConstructor
 public abstract class CommunicationComponent<M extends Metadata> {
 
     private final M metadata;
@@ -19,6 +17,11 @@ public abstract class CommunicationComponent<M extends Metadata> {
 
     @Setter
     private FutureResult<Void> connectionFuture = new FutureResult<>();
+
+    public CommunicationComponent(M metadata, int workerThreads) {
+        this.bossGroup = NetworkUtils.createEventLoopGroup(workerThreads);
+        this.metadata = metadata;
+    }
 
     public FutureListener<? super Channel> handleConnectionRelease() {
         return it -> {
