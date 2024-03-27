@@ -1,25 +1,22 @@
 package dev.httpmarco.osgan.networking.client;
 
-import dev.httpmarco.osgan.networking.ChannelInitializer;
-import dev.httpmarco.osgan.networking.CommunicationComponent;
-import dev.httpmarco.osgan.networking.CommunicationComponentHandler;
-import dev.httpmarco.osgan.networking.client.queue.ReconnectQueue;
-import dev.httpmarco.osgan.networking.NetworkUtils;
+import dev.httpmarco.osgan.networking.*;
 import dev.httpmarco.osgan.utils.executers.FutureResult;
 import io.netty5.bootstrap.Bootstrap;
 import io.netty5.channel.ChannelOption;
-import io.netty5.channel.EventLoopGroup;
 import io.netty5.channel.epoll.Epoll;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Accessors(fluent = true)
 public final class NettyClient extends CommunicationComponent<ClientMetadata> {
 
     private final Bootstrap bootstrap;
+    private @Nullable ChannelTransmit transmit;
     private final ReconnectQueue reconnectQueue = new ReconnectQueue(this);
 
     public NettyClient(ClientMetadata metadata) {
@@ -28,7 +25,16 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
         this.bootstrap = new Bootstrap()
                 .group(bossGroup())
                 .channelFactory(NetworkUtils::createChannelFactory)
-                .handler(new ChannelInitializer(new CommunicationComponentHandler()))
+                .handler(new ChannelInitializer(CommunicationComponentHandler
+                        .builder()
+                        .onActive(it -> this.transmit = it)
+                        .onInactive(it -> {
+                            if ((metadata.hasReconnection())) {
+                                this.reconnectQueue.start();
+                            }
+                            this.transmit = null;
+                        })
+                        .build()))
                 .option(ChannelOption.AUTO_READ, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.SO_KEEPALIVE, true)
@@ -63,5 +69,11 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                 this.connectionFuture(null);
             }
         });
+    }
+
+    public <P extends Packet> void sendPacket(P packet) {
+        if (this.transmit != null) {
+            this.transmit.sendPacket(packet);
+        }
     }
 }

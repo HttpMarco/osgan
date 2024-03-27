@@ -1,29 +1,37 @@
 package dev.httpmarco.osgan.networking;
 
-import dev.httpmarco.osgan.networking.packet.Packet;
+import dev.httpmarco.osgan.networking.listening.ChannelPacketListener;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.channel.SimpleChannelInboundHandler;
+import lombok.Builder;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Consumer;
+@Builder
+public final class CommunicationComponentHandler extends SimpleChannelInboundHandler<Packet> {
 
-public class CommunicationComponentHandler extends SimpleChannelInboundHandler<Packet> {
-
-    private Consumer<Channel> channelActiveConsumer;
-    private Consumer<Channel> channelInactiveConsumer;
+    private ChannelConsumer onActive, onInactive;
+    private ChannelPacketListener onPacketReceived;
 
     @Override
-    protected void messageReceived(ChannelHandlerContext channelHandlerContext, Packet packet) {
-
+    protected void messageReceived(ChannelHandlerContext ctx, Packet packet) {
+        System.err.println("Received packet: " + packet);
+        this.onPacketReceived.listen(new ChannelTransmit(ctx.channel()), packet);
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) {
-        this.channelActiveConsumer.accept(ctx.channel());
+    public void channelActive(@NotNull ChannelHandlerContext ctx) {
+        this.supplyChannelTransmit(ctx.channel(), this.onActive);
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        this.channelInactiveConsumer.accept(ctx.channel());
+    public void channelInactive(@NotNull ChannelHandlerContext ctx) {
+        this.supplyChannelTransmit(ctx.channel(), this.onInactive);
+    }
+
+    private void supplyChannelTransmit(Channel channel, ChannelConsumer consumer) {
+        if (consumer != null) {
+            consumer.listen(new ChannelTransmit(channel));
+        }
     }
 }
