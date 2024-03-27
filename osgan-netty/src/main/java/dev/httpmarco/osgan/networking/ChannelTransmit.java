@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @AllArgsConstructor
 public final class ChannelTransmit {
-
+    
     private Channel channel;
 
     public <P extends Packet> void sendPacket(P object) {

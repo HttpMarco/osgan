@@ -29,4 +29,8 @@ public class VerifyPlayer {
         this.roles = roles;
         this.usernames = usernames;
     }
+
+    public String getTsId() {
+        return tsId;
+    }
 }

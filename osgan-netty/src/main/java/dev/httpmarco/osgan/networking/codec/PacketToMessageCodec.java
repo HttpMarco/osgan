@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PacketToMessageCodec extends AbstractMessageToPacket {
 
@@ -47,6 +48,7 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
                 }
             } else if (Collection.class.isAssignableFrom(type)) {
                 var collection = (Collection<?>) field.get(packet);
+                buffer.writeString(collection.getClass().getName());
                 buffer.writeInt(collection.size());
                 for (var object : collection) {
                     if (this.encodeParameter(buffer, object)) {
@@ -139,16 +141,19 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
                 }
                 field.set(packet, array);
             } else if (Collection.class.isAssignableFrom(type)) {
-                var collectionType = new Reflections<>(type).withField(field).generics()[0];
+                var collectionElementType = new Reflections<>(type).withField(field).generics()[0];
+                var collectionType = Class.forName(buffer.readString());
                 Collection<Object> collection;
 
-                if (LinkedHashSet.class.isAssignableFrom(type)) {
+                if (LinkedHashSet.class.isAssignableFrom(collectionType)) {
                     collection = new LinkedHashSet<>();
-                } else if (Set.class.isAssignableFrom(type)) {
+                } else if (Set.class.isAssignableFrom(collectionType)) {
                     collection = new HashSet<>();
-                } else if (LinkedList.class.isAssignableFrom(type)) {
+                } else if (CopyOnWriteArrayList.class.isAssignableFrom(collectionType)) {
+                    collection = new CopyOnWriteArrayList<>();
+                } else if (LinkedList.class.isAssignableFrom(collectionType)) {
                     collection = new LinkedList<>();
-                } else if (List.class.isAssignableFrom(type)) {
+                } else if (List.class.isAssignableFrom(collectionType)) {
                     collection = new ArrayList<>();
                 } else {
                     System.err.println("Decode - Unsupported collection type: " + type.getName() + " in packet " + clazz.getName());
@@ -158,7 +163,7 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
                 int size = buffer.readInt();
 
                 for (var i = 0; i < size; i++) {
-                    var object = decodeParameter(buffer, collectionType);
+                    var object = decodeParameter(buffer, collectionElementType);
                     if (object != null) {
                         collection.add(object);
                         continue;

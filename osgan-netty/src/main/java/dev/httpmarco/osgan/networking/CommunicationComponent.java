@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public abstract class CommunicationComponent<M extends Metadata> {
 
     private final M metadata;
     private final EventLoopGroup bossGroup;
-    private final Map<ChannelTransmit, Map<Class<?>, List<ChannelPacketListener>>> packetListeners = new HashMap<>();
+    private final Map<Class<? extends Packet>, List<ChannelPacketListener<? extends Packet>>> packetListeners = new HashMap<>();
 
     public CommunicationComponent(M metadata, int workerThreads) {
         this.bossGroup = NetworkUtils.createEventLoopGroup(workerThreads);
@@ -53,7 +54,12 @@ public abstract class CommunicationComponent<M extends Metadata> {
     }
 
     public void callPacketReceived(ChannelTransmit transmit, Packet packet) {
-
+        if (this.packetListeners.containsKey(packet.getClass())) {
+            this.packetListeners.get(packet.getClass()).forEach(it -> it.listenWithMapping(transmit, packet));
+        }
     }
 
+    public <P extends Packet> void listening(Class<P> packetClass, ChannelPacketListener<P> listener) {
+        this.packetListeners.computeIfAbsent(packetClass, it -> new ArrayList<>()).add(listener);
+    }
 }

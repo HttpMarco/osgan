@@ -1,7 +1,8 @@
 package dev.httpmarco.osgan.test.networking;
 
 import dev.httpmarco.osgan.networking.Packet;
-import dev.httpmarco.osgan.networking.annotation.PacketIncludeObject;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
 public class AuthPacket implements Packet {
 
@@ -9,5 +10,9 @@ public class AuthPacket implements Packet {
 
     public AuthPacket(VerifyPlayer player) {
         this.player = player;
+    }
+
+    public VerifyPlayer getPlayer() {
+        return player;
     }
 }

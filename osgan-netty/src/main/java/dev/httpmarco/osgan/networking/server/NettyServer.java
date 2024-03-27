@@ -30,7 +30,7 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                         .builder()
                         .onActive(transmits::add)
                         .onInactive(transmits::remove)
-                        .onPacketReceived(this::callPacketReceived)
+                        .onPacketReceived((channel, packet) -> callPacketReceived(channel, (Packet) packet))
                         .build()))
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.AUTO_READ, true)
@@ -39,7 +39,6 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
         if (Epoll.isTcpFastOpenServerSideAvailable()) {
             bootstrap.option(ChannelOption.TCP_FASTOPEN, 3);
         }
-
         bootstrap.bind(metadata().hostname(), metadata().port()).addListener(handleConnectionRelease());
     }
 
