@@ -6,10 +6,12 @@ import dev.httpmarco.osgan.networking.annotation.PacketIgnore;
 import dev.httpmarco.osgan.networking.annotation.PacketIncludeObject;
 import dev.httpmarco.osgan.reflections.Reflections;
 import io.netty5.channel.ChannelHandlerContext;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -27,7 +29,7 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
     private void encodeObject(@NotNull CodecBuffer buffer, @NotNull Object packet) throws Exception {
         buffer.writeString(packet.getClass().getName());
 
-        for (var field : packet.getClass().getDeclaredFields()) {
+        for (Field field : packet.getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(PacketIgnore.class)) {
                 continue;
             }
@@ -35,6 +37,7 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
             field.setAccessible(true);
 
             var nullableObject = field.get(packet);
+            buffer.writeString(field.getName());
             buffer.writeBoolean(nullableObject == null);
 
             if (nullableObject == null) {
@@ -122,11 +125,19 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
         }
     }
 
-    private Object decodeObject(@NotNull CodecBuffer buffer) throws ClassNotFoundException, IllegalAccessException {
+    private Object decodeObject(@NotNull CodecBuffer buffer) throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
         var clazz = Class.forName(buffer.readString());
         var packet = new Reflections<>(clazz).allocate();
 
-        for (var field : clazz.getDeclaredFields()) {
+        //TODO remove
+        System.out.println("Decoding class: " + clazz);
+
+        for (int i = 0; i < clazz.getDeclaredFields().length; i++) {
+            var fieldName = buffer.readString();
+            var field = clazz.getDeclaredField(fieldName);
+
+            System.out.println("Decoding field: " + fieldName);
+
             if (field.isAnnotationPresent(PacketIgnore.class)) {
                 continue;
             }
@@ -148,13 +159,13 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
             } else if (type.isArray()) {
                 var array = (Object[]) Array.newInstance(type.getComponentType(), buffer.readInt());
 
-                for (int i = 0; i < array.length; i++) {
+                for (int y = 0; y < array.length; y++) {
                     var object = decodeParameter(buffer, array.getClass().getComponentType());
                     if (object != null) {
-                        array[i] = object;
+                        array[y] = object;
                         continue;
                     }
-                    array[i] = decodeObject(buffer);
+                    array[y] = decodeObject(buffer);
                 }
                 field.set(packet, array);
             } else if (Collection.class.isAssignableFrom(type)) {
@@ -179,7 +190,7 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
 
                 int size = buffer.readInt();
 
-                for (var i = 0; i < size; i++) {
+                for (var y = 0; y < size; y++) {
                     var object = decodeParameter(buffer, collectionElementType);
                     if (object != null) {
                         collection.add(object);

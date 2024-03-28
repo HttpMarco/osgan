@@ -10,7 +10,7 @@ allprojects {
     apply(plugin = "maven-publish")
 
     group = "dev.httpmarco"
-    version = "1.0.35-SNAPSHOT"
+    version = "1.0.37-SNAPSHOT"
 
     repositories {
         mavenCentral()

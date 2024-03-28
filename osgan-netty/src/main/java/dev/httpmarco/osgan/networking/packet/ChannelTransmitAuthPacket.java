@@ -9,7 +9,5 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @AllArgsConstructor
 public class ChannelTransmitAuthPacket implements Packet {
-
     private String id;
-
 }
