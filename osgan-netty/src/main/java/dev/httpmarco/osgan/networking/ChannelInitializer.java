@@ -1,6 +1,7 @@
 package dev.httpmarco.osgan.networking;
 
-import dev.httpmarco.osgan.networking.codec.PacketToMessageCodec;
+import dev.httpmarco.osgan.networking.codec.PacketDecoder;
+import dev.httpmarco.osgan.networking.codec.PacketEncoder;
 import io.netty5.channel.Channel;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
@@ -16,6 +17,6 @@ public final class ChannelInitializer extends io.netty5.channel.ChannelInitializ
 
     @Override
     protected void initChannel(@NotNull Channel channel) {
-        channel.pipeline().addLast(new PacketToMessageCodec(), communicationComponentHandler);
+        channel.pipeline().addLast(new PacketEncoder(), new PacketDecoder(), communicationComponentHandler);
     }
 }

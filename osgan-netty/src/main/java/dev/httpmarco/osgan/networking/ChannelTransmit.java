@@ -1,6 +1,5 @@
 package dev.httpmarco.osgan.networking;
 
-import dev.httpmarco.osgan.files.json.JsonUtils;
 import dev.httpmarco.osgan.networking.packet.ForwardPacket;
 import io.netty5.channel.Channel;
 import lombok.*;
@@ -25,6 +24,6 @@ public final class ChannelTransmit {
     }
 
     public <P extends Packet> void redirectPacket(String id, P object) {
-        this.sendPacket(new ForwardPacket(id, object.getClass().getName(), JsonUtils.toJson(object)));
+        this.sendPacket(new ForwardPacket(id, object));
     }
 }
