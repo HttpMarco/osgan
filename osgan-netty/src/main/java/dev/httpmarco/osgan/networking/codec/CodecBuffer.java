@@ -38,13 +38,13 @@ public class CodecBuffer {
         return this.buffer.readBoolean();
     }
 
-    public CodecBuffer writeUUID(UUID uuid) {
-        this.buffer.writeLong(uuid.getMostSignificantBits());
-        this.buffer.writeLong(uuid.getLeastSignificantBits());
+    public CodecBuffer writeUniqueId(UUID uniqueId) {
+        this.buffer.writeLong(uniqueId.getMostSignificantBits());
+        this.buffer.writeLong(uniqueId.getLeastSignificantBits());
         return this;
     }
 
-    public UUID readUUID() {
+    public UUID readUniqueId() {
         return new UUID(this.buffer.readLong(), this.buffer.readLong());
     }
 

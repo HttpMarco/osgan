@@ -9,8 +9,8 @@ public interface ChannelPacketListener<P> {
     void listen(ChannelTransmit channel, P packet);
 
     @SuppressWarnings("unchecked")
-    default void listenWithMapping(ChannelTransmit channel, Packet packet) {
-        listen(channel, (P) packet);
+    default void listenWithMapping(ChannelTransmit transmit, Packet packet) {
+        listen(transmit, (P) packet);
     }
 
 }

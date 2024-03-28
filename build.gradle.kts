@@ -9,9 +9,8 @@ allprojects {
     apply(plugin = "java-library")
     apply(plugin = "maven-publish")
 
-
     group = "dev.httpmarco"
-    version = "1.0.27-SNAPSHOT"
+    version = "1.0.35-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -67,11 +66,11 @@ allprojects {
 nexusPublishing {
     repositories {
         sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            nexusUrl.set(uri("https://nexus.bytemc.de/repository/maven-public/"))
+            snapshotRepositoryUrl.set(uri("https://nexus.bytemc.de/repository/maven-public/"))
 
-            username.set(System.getenv("ossrhUsername")?.toString() ?: "")
-            password.set(System.getenv("ossrhPassword")?.toString() ?: "")
+            username.set(System.getenv("BYTEMC_REPO_USER")?.toString() ?: "")
+            password.set(System.getenv("BYTEMC_REPO_PASSWORD")?.toString() ?: "")
         }
     }
     useStaging.set(!project.rootProject.version.toString().endsWith("-SNAPSHOT"))

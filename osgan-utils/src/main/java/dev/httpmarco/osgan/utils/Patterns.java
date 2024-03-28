@@ -14,7 +14,7 @@ public class Patterns {
                     "[pP][+-]?(\\p{Digit}+)))[fFdD]?))[\\x00-\\x20]*");
 
     /**
-     * Pattern for a {@link java.util.UUID}. Source: <a href="https://www.code4copy.com/java/validate-uuid-string-java/">...</a>
+     * Pattern for a {@link java.util.UUID}. Source: <a href="https://www.code4copy.com/java/validate-uniqueId-string-java/">...</a>
      */
     public static final Pattern UUID_PATTERN = Pattern.compile("^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$");
 

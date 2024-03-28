@@ -8,7 +8,7 @@ import java.util.UUID;
 @PacketIncludeObject
 public class VerifyPlayer {
 
-    private UUID uuid;
+    private UUID uniqueId;
     private String tsId;
     private String dcId;
     private String rank;
@@ -18,8 +18,8 @@ public class VerifyPlayer {
     private String[] roles;
     private Collection<String> usernames;
 
-    public VerifyPlayer(UUID uuid, String tsId, String dcId, String rank, boolean toggleBot, String forumAccount, String userId, String[] roles, Collection<String> usernames) {
-        this.uuid = uuid;
+    public VerifyPlayer(UUID uniqueId, String tsId, String dcId, String rank, boolean toggleBot, String forumAccount, String userId, String[] roles, Collection<String> usernames) {
+        this.uniqueId = uniqueId;
         this.tsId = tsId;
         this.dcId = dcId;
         this.rank = rank;

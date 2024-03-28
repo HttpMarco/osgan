@@ -1,5 +1,6 @@
 package dev.httpmarco.osgan.networking.codec;
 
+import dev.httpmarco.osgan.files.json.JsonObjectSerializer;
 import dev.httpmarco.osgan.networking.Packet;
 import dev.httpmarco.osgan.networking.annotation.PacketIgnore;
 import dev.httpmarco.osgan.networking.annotation.PacketIncludeObject;
@@ -98,7 +99,10 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
             buffer.writeByte((Byte) parameter);
             return true;
         } else if (type.equals(UUID.class)) {
-            buffer.writeUUID((UUID) parameter);
+            buffer.writeUniqueId((UUID) parameter);
+            return true;
+        } else if (type.equals(JsonObjectSerializer.class)) {
+            buffer.writeString(parameter.toString());
             return true;
         } else if (type.isEnum()) {
             buffer.writeEnum((Enum<?>) parameter);
@@ -209,7 +213,9 @@ public class PacketToMessageCodec extends AbstractMessageToPacket {
         } else if (type.equals(Byte.class) || type.equals(byte.class)) {
             return buffer.readByte();
         } else if (type.equals(UUID.class)) {
-            return buffer.readUUID();
+            return buffer.readUniqueId();
+        } else if (type.equals(JsonObjectSerializer.class)) {
+            return new JsonObjectSerializer(buffer.readString());
         } else if (type.isEnum()) {
             return buffer.readEnum((Class<? extends Enum<?>>) type);
         }
