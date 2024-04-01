@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 public class CodecBuffer {
     private static final BufferAllocator BUFFER_ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
 
-    @Getter(AccessLevel.PACKAGE)
+    @Getter
     private final Buffer origin;
 
     public static CodecBuffer allocate() {

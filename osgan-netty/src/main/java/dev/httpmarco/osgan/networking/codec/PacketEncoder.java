@@ -3,7 +3,10 @@ package dev.httpmarco.osgan.networking.codec;
 import dev.httpmarco.osgan.networking.Packet;
 import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty5.handler.codec.MessageToByteEncoder;
+import io.netty5.handler.stream.ChunkedInput;
+import io.netty5.handler.stream.ChunkedWriteHandler;
 
 import java.nio.charset.StandardCharsets;
 
@@ -17,7 +20,7 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
                 // amount of bytes in buffer
                 Integer.BYTES +
                 // buffer content
-                msg.getBuffer().getOrigin().readerOffset(0).readableBytes();
+                msg.getBuffer().getOrigin().readableBytes();
 
         return ctx.bufferAllocator().allocate(bytes);
     }
@@ -25,14 +28,17 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet msg, Buffer out) {
         try {
-            var origin = msg.getBuffer().getOrigin().copy();
+            var origin = msg.getBuffer().getOrigin();
             var buffer = new CodecBuffer(out);
             var readableBytes = origin.readableBytes();
-
+            
             buffer.writeString(msg.getClass().getName());
             buffer.writeInt(readableBytes);
 
-            buffer.writeBytes(origin);
+            origin.copyInto(0, out, out.writerOffset(), readableBytes);
+            out.skipWritableBytes(readableBytes);
+
+            //origin.close();
 
             System.out.println("Encoding buffer with " + buffer.getOrigin().readableBytes() + " bytes (capacity: " + buffer.getOrigin().capacity() + ")");
         } catch (Exception e) {

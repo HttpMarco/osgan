@@ -15,6 +15,8 @@ import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.channel.epoll.Epoll;
+import io.netty5.handler.codec.FixedLengthFrameDecoder;
+import io.netty5.handler.codec.LineBasedFrameDecoder;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Contract;
@@ -55,11 +57,12 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                         })
                         .build()))
                 .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.AUTO_READ, true)
+                //.childOption(ChannelOption.AUTO_READ, true)
+                .childOption(ChannelOption.IP_TOS, 24)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
 
         if (Epoll.isTcpFastOpenServerSideAvailable()) {
-            bootstrap.option(ChannelOption.TCP_FASTOPEN, 3);
+            //bootstrap.option(ChannelOption.TCP_FASTOPEN, 3);
         }
 
         this.listen(ForwardPacket.class, (channel, packet) -> {
