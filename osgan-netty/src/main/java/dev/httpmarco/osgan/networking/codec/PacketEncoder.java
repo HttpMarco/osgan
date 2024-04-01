@@ -38,8 +38,6 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
             origin.copyInto(0, out, out.writerOffset(), readableBytes);
             out.skipWritableBytes(readableBytes);
 
-            //origin.close();
-
             System.out.println("Encoding buffer with " + buffer.getOrigin().readableBytes() + " bytes (capacity: " + buffer.getOrigin().capacity() + ")");
         } catch (Exception e) {
             System.err.println("Error while encoding packet " + msg.getClass().getName());
