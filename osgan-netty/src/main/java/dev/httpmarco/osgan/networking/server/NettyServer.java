@@ -32,8 +32,8 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
     @Accessors(fluent = true)
     private final List<ChannelTransmit> transmits = new ArrayList<>();
 
-    private final Map<String, ArrayList<Channel>> responders = new HashMap<>();
-    private final Map<Channel, String> respondersByChannel = new HashMap<>();
+    private final Map<String, List<Channel>> responders = new HashMap<>();
+    private final Map<Channel, List<String>> respondersByChannel = new HashMap<>();
     private final Map<UUID, PendingRequest> pending = new HashMap<>();
 
     public NettyServer(ServerMetadata metadata) {
@@ -57,13 +57,8 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                         })
                         .build()))
                 .childOption(ChannelOption.TCP_NODELAY, true)
-                //.childOption(ChannelOption.AUTO_READ, true)
                 .childOption(ChannelOption.IP_TOS, 24)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
-
-        if (Epoll.isTcpFastOpenServerSideAvailable()) {
-            //bootstrap.option(ChannelOption.TCP_FASTOPEN, 3);
-        }
 
         this.listen(ForwardPacket.class, (channel, packet) -> {
             var matchingTransmits = this.transmits().stream()
@@ -79,8 +74,12 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                 this.responders.put(packet.id(), new ArrayList<>());
             }
 
+            if (!respondersByChannel.containsKey(transmit.channel())) {
+                this.respondersByChannel.put(transmit.channel(), new ArrayList<>());
+            }
+
             this.responders.get(packet.id()).add(transmit.channel());
-            this.respondersByChannel.put(transmit.channel(), packet.id());
+            this.respondersByChannel.get(transmit.channel()).add(packet.id());
 
             System.out.println("Registered responder: " + packet.id());
         });
@@ -162,11 +161,15 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
 
     private void unregisterChannel(Channel channel) {
         if (this.respondersByChannel.containsKey(channel)) {
-            var id = this.respondersByChannel.get(channel);
-            this.responders.remove(id);
-            this.respondersByChannel.remove(channel);
+            var responders = this.respondersByChannel.get(channel);
 
-            System.out.println("Unregistered responder: " + id);
+            for (String responder : responders) {
+                this.responders.get(responder).remove(channel);
+
+                System.out.println("Unregistered responder: " + responder);
+            }
+
+            this.respondersByChannel.remove(channel);
         }
     }
 }
