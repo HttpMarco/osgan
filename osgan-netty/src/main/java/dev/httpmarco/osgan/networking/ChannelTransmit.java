@@ -1,10 +1,13 @@
 package dev.httpmarco.osgan.networking;
 
 import dev.httpmarco.osgan.networking.packet.ForwardPacket;
+import io.netty5.buffer.Buffer;
 import io.netty5.channel.Channel;
 import io.netty5.util.concurrent.Future;
 import lombok.*;
 import lombok.experimental.Accessors;
+
+import java.util.concurrent.CompletableFuture;
 
 @Getter
 @Accessors(fluent = true)
@@ -29,10 +32,9 @@ public final class ChannelTransmit {
     }
 
     @SneakyThrows
-    private Future<Void> writeAndFlush(Channel channel, Packet packet) {
+    private void writeAndFlush(Channel channel, Packet packet) {
         packet.getBuffer().getOrigin().readerOffset(0);
 
-        var future = channel.writeAndFlush(packet);
-        return future.asStage().sync().future();
+        channel.writeAndFlush(packet);
     }
 }
