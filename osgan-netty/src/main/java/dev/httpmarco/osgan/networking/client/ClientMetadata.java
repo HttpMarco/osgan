@@ -9,14 +9,15 @@ import org.jetbrains.annotations.Nullable;
 @Accessors(fluent = true)
 public final class ClientMetadata extends Metadata {
 
-    private @Nullable String id;
+    private final @Nullable String id;
     // if connection is not present, time for reconnect scheduling
     private final long reconnectSchedule;
     // time for wait a successful connection response
     private final int connectionTimeout;
 
-    public ClientMetadata(String id, String hostname, int port, long reconnectSchedule, int connectionTimeout) {
+    public ClientMetadata(@Nullable String id, String hostname, int port, long reconnectSchedule, int connectionTimeout) {
         super(hostname, port);
+        this.id = id;
         this.reconnectSchedule = reconnectSchedule;
         this.connectionTimeout = connectionTimeout;
     }

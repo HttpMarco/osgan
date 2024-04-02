@@ -51,6 +51,7 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                         .onPacketReceived((channel, packet) -> {
                             if (packet instanceof ChannelTransmitAuthPacket authPacket) {
                                 transmits.stream().filter(it -> it.channel().equals(channel.channel())).findFirst().ifPresent(transmit -> transmit.id(authPacket.id()));
+                                System.out.println("Channel " + channel.channel().remoteAddress() + " registered with id: " + authPacket.id());
                                 return;
                             }
                             callPacketReceived(channel, packet);
@@ -65,8 +66,9 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                     .filter(transmit -> transmit.id() != null && transmit.id().equals(packet.id()))
                     .toList();
 
-            //TODO check if has to be cloned?
-            matchingTransmits.get(RandomUtils.getRandomNumber(matchingTransmits.size())).sendPacket(packet);
+            if (!matchingTransmits.isEmpty()) {
+                matchingTransmits.get(RandomUtils.getRandomNumber(matchingTransmits.size())).sendPacket(packet);
+            }
         });
 
         this.listen(RegisterResponderPacket.class, (transmit, packet) -> {

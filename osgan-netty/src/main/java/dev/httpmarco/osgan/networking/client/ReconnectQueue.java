@@ -12,14 +12,15 @@ public final class ReconnectQueue extends Thread {
     @Override
     @SneakyThrows
     public void run() {
-        while ((Thread.currentThread().isAlive())) {
-            Thread.sleep(RECONNECT_TIMEOUT);
-
+        while (this.isAlive()) {
             if (!this.nettyClient.isConnected()) {
                 this.nettyClient.connect();
             } else {
                 interrupt();
             }
+            //TODO
+
+            Thread.sleep(RECONNECT_TIMEOUT);
         }
     }
 }

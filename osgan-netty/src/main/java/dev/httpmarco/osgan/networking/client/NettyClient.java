@@ -42,8 +42,8 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                         })
                         .onInactive(it -> {
                             if ((metadata.hasReconnection())) {
-                                this.reconnectQueue.start();
                                 System.out.println("Starting reconnect queue...");
+                                this.reconnectQueue.start();
                             }
 
                             this.transmit = null;
