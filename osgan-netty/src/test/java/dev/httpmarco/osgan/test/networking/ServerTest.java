@@ -1,5 +1,6 @@
 package dev.httpmarco.osgan.test.networking;
 
+import dev.httpmarco.osgan.files.json.JsonUtils;
 import dev.httpmarco.osgan.networking.client.NettyClient;
 import dev.httpmarco.osgan.networking.server.NettyServer;
 import org.junit.jupiter.api.Test;
@@ -12,19 +13,19 @@ public class ServerTest {
 
     @Test
     public void handle() throws InterruptedException {
-        var server = NettyServer.builder().build();
+        System.out.println(JsonUtils.fromJson(JsonUtils.toJson(new AuthPacket()), AuthPacket.class));
 
-        var client = NettyClient.builder()
-                .withId("polo")
-                .withHostname("127.0.0.1")
-                .withConnectTimeout(500)
-                .build();
-
-
-        Thread.sleep(1000);
-
-        client.sendPacket(new AuthPacket(new VerifyPlayer(UUID.randomUUID(), "Marco", "1234", "1234", true, "Marco", "1234", new String[]{"admin", "test"}, Collections.singleton("test2"))));
-
-        Thread.sleep(10000);
+//        var client = NettyClient.builder()
+//                .withId("polo")
+//                .withHostname("127.0.0.1")
+//                .withConnectTimeout(500)
+//                .build();
+//
+//
+//        Thread.sleep(1000);
+//
+//        client.sendPacket(new AuthPacket());
+//
+//        Thread.sleep(10000);
     }
 }

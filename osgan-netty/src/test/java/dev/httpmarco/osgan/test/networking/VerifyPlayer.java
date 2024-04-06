@@ -1,11 +1,8 @@
 package dev.httpmarco.osgan.test.networking;
 
-import dev.httpmarco.osgan.networking.annotation.PacketIncludeObject;
-
 import java.util.Collection;
 import java.util.UUID;
 
-@PacketIncludeObject
 public class VerifyPlayer {
 
     private UUID uniqueId;

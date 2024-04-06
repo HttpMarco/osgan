@@ -9,12 +9,10 @@ import java.io.FileWriter;
 public class JsonUtils {
 
     private static final Gson JSON = new GsonBuilder()
-            .disableHtmlEscaping()
             .setExclusionStrategies(new JsonByteExclusionStrategy())
             .create();
     private static final Gson PRETTY_JSON = new GsonBuilder()
             .setPrettyPrinting()
-            .disableHtmlEscaping()
             .setExclusionStrategies(new JsonByteExclusionStrategy())
             .create();
 

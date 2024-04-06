@@ -42,8 +42,8 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                         })
                         .onInactive(it -> {
                             if ((metadata.hasReconnection())) {
-                                this.reconnectQueue.start();
                                 System.out.println("Starting reconnect queue...");
+                                this.reconnectQueue.start();
                             }
 
                             this.transmit = null;
@@ -52,7 +52,8 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                         .build()))
                 .option(ChannelOption.AUTO_READ, true)
                 .option(ChannelOption.TCP_NODELAY, true)
-                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.IP_TOS, 24)
+                //.option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, metadata().connectionTimeout());
 
         if (Epoll.isTcpFastOpenClientSideAvailable()) {

@@ -15,6 +15,8 @@ import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.channel.epoll.Epoll;
+import io.netty5.handler.codec.FixedLengthFrameDecoder;
+import io.netty5.handler.codec.LineBasedFrameDecoder;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Contract;
@@ -30,8 +32,8 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
     @Accessors(fluent = true)
     private final List<ChannelTransmit> transmits = new ArrayList<>();
 
-    private final Map<String, ArrayList<Channel>> responders = new HashMap<>();
-    private final Map<Channel, String> respondersByChannel = new HashMap<>();
+    private final Map<String, List<Channel>> responders = new HashMap<>();
+    private final Map<Channel, List<String>> respondersByChannel = new HashMap<>();
     private final Map<UUID, PendingRequest> pending = new HashMap<>();
 
     public NettyServer(ServerMetadata metadata) {
@@ -49,26 +51,24 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                         .onPacketReceived((channel, packet) -> {
                             if (packet instanceof ChannelTransmitAuthPacket authPacket) {
                                 transmits.stream().filter(it -> it.channel().equals(channel.channel())).findFirst().ifPresent(transmit -> transmit.id(authPacket.id()));
+                                System.out.println("Channel " + channel.channel().remoteAddress() + " registered with id: " + authPacket.id());
                                 return;
                             }
                             callPacketReceived(channel, packet);
                         })
                         .build()))
                 .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.AUTO_READ, true)
+                .childOption(ChannelOption.IP_TOS, 24)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
-
-        if (Epoll.isTcpFastOpenServerSideAvailable()) {
-            bootstrap.option(ChannelOption.TCP_FASTOPEN, 3);
-        }
 
         this.listen(ForwardPacket.class, (channel, packet) -> {
             var matchingTransmits = this.transmits().stream()
                     .filter(transmit -> transmit.id() != null && transmit.id().equals(packet.id()))
                     .toList();
 
-            //TODO check if has to be cloned?
-            matchingTransmits.get(RandomUtils.getRandomNumber(matchingTransmits.size())).sendPacket(packet);
+            if (!matchingTransmits.isEmpty()) {
+                matchingTransmits.get(RandomUtils.getRandomNumber(matchingTransmits.size())).sendPacket(packet);
+            }
         });
 
         this.listen(RegisterResponderPacket.class, (transmit, packet) -> {
@@ -76,8 +76,12 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                 this.responders.put(packet.id(), new ArrayList<>());
             }
 
+            if (!respondersByChannel.containsKey(transmit.channel())) {
+                this.respondersByChannel.put(transmit.channel(), new ArrayList<>());
+            }
+
             this.responders.get(packet.id()).add(transmit.channel());
-            this.respondersByChannel.put(transmit.channel(), packet.id());
+            this.respondersByChannel.get(transmit.channel()).add(packet.id());
 
             System.out.println("Registered responder: " + packet.id());
         });
@@ -159,11 +163,15 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
 
     private void unregisterChannel(Channel channel) {
         if (this.respondersByChannel.containsKey(channel)) {
-            var id = this.respondersByChannel.get(channel);
-            this.responders.remove(id);
-            this.respondersByChannel.remove(channel);
+            var responders = this.respondersByChannel.get(channel);
 
-            System.out.println("Unregistered responder: " + id);
+            for (String responder : responders) {
+                this.responders.get(responder).remove(channel);
+
+                System.out.println("Unregistered responder: " + responder);
+            }
+
+            this.respondersByChannel.remove(channel);
         }
     }
 }
