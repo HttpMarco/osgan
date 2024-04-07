@@ -40,14 +40,7 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                             }
                             this.transmit = it;
                         })
-                        .onInactive(it -> {
-                            if ((metadata.hasReconnection())) {
-                                System.out.println("Starting reconnect queue...");
-                                this.reconnectQueue.start();
-                            }
-
-                            this.transmit = null;
-                        })
+                        .onInactive(it -> this.transmit = null)
                         .onPacketReceived(this::callPacketReceived)
                         .build()))
                 .option(ChannelOption.AUTO_READ, true)
@@ -87,7 +80,7 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                 this.requestHandler().acceptRequest(packet.uniqueId(), packet.packetJson());
             }
         });
-
+        this.reconnectQueue.start();
         this.connect();
     }
 
@@ -101,18 +94,14 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
 
         this.bootstrap.connect(metadata().hostname(), metadata().port()).addListener(future -> {
             if (future.isSuccess()) {
-                if (metadata().hasReconnection()) {
-                    this.reconnectQueue.interrupt();
-                }
                 this.connectionFuture().complete(null);
                 return;
             }
             if (metadata().hasReconnection()) {
-                this.reconnectQueue.start();
-            } else {
-                this.connectionFuture().completeExceptionally(future.cause());
-                this.connectionFuture(null);
+                return;
             }
+            this.connectionFuture().completeExceptionally(future.cause());
+            this.connectionFuture(null);
         });
     }
 
@@ -138,7 +127,7 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
     }
 
     @Override
-    public boolean isServer() {
-        return false;
+    public boolean isConnected() {
+        return transmit != null;
     }
 }

@@ -31,6 +31,11 @@ public final class CommunicationComponentHandler extends SimpleChannelInboundHan
         System.out.println("Connection closed with " + ctx.channel().remoteAddress());
     }
 
+    @Override
+    public void channelExceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        if(!cause.getMessage().equals("Connection reset")) cause.printStackTrace();
+    }
+
     private void supplyChannelTransmit(Channel channel, ChannelConsumer consumer) {
         if (consumer != null) {
             consumer.listen(new ChannelTransmit(channel));

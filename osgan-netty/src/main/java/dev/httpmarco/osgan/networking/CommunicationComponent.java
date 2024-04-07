@@ -36,8 +36,6 @@ public abstract class CommunicationComponent<M extends Metadata> {
         this.requestHandler = new RequestHandler(this);
     }
 
-    public abstract boolean isServer();
-
     public abstract <P extends Packet> void sendPacket(P packet);
 
     public abstract <P extends Packet> void sendPacket(Channel channel, P packet);

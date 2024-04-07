@@ -6,6 +6,7 @@ import dev.httpmarco.osgan.networking.CommunicationComponent;
 import dev.httpmarco.osgan.networking.Packet;
 import dev.httpmarco.osgan.networking.request.packets.RegisterResponderPacket;
 import dev.httpmarco.osgan.networking.request.packets.RequestPacket;
+import dev.httpmarco.osgan.networking.server.NettyServer;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class RequestHandler {
     public <T extends Packet> void registerResponder(String id, PacketResponder<T> responder) {
         this.responders.put(id, responder);
 
-        if (!this.component.isServer()) {
+        if (this.component instanceof NettyServer) {
             this.component.sendPacket(new RegisterResponderPacket(id));
         }
     }

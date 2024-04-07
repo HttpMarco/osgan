@@ -1,26 +1,27 @@
 package dev.httpmarco.osgan.networking.client;
 
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 
-@RequiredArgsConstructor
 public final class ReconnectQueue extends Thread {
 
     private static final long RECONNECT_TIMEOUT = 5000;
     private final NettyClient nettyClient;
 
-    @Override
-    @SneakyThrows
-    public void run() {
-        while (this.isAlive()) {
-            if (!this.nettyClient.isConnected()) {
-                this.nettyClient.connect();
-            } else {
-                interrupt();
-            }
-            //TODO
+    public ReconnectQueue(NettyClient nettyClient) {
+        this.nettyClient = nettyClient;
+        Runtime.getRuntime().addShutdownHook(new Thread(this::interrupt));
+    }
 
-            Thread.sleep(RECONNECT_TIMEOUT);
+    @Override
+    public void run() {
+        while (true) {
+            if (!nettyClient.isConnected()) {
+                System.out.println("Reconnecting...");
+                nettyClient.connect();
+            }
+            try {
+                sleep(RECONNECT_TIMEOUT);
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 }

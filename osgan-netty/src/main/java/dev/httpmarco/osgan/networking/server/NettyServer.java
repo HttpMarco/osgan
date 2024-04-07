@@ -82,7 +82,6 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
 
             this.responders.get(packet.id()).add(transmit.channel());
             this.respondersByChannel.get(transmit.channel()).add(packet.id());
-
             System.out.println("Registered responder: " + packet.id());
         });
         this.listen(RequestPacket.class, (transmit, packet) -> {
@@ -132,11 +131,6 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
     }
 
     @Override
-    public boolean isServer() {
-        return true;
-    }
-
-    @Override
     public void close() {
         super.close();
         workerGroup.shutdownGracefully();
@@ -164,13 +158,10 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
     private void unregisterChannel(Channel channel) {
         if (this.respondersByChannel.containsKey(channel)) {
             var responders = this.respondersByChannel.get(channel);
-
-            for (String responder : responders) {
+            for (var responder : responders) {
                 this.responders.get(responder).remove(channel);
-
                 System.out.println("Unregistered responder: " + responder);
             }
-
             this.respondersByChannel.remove(channel);
         }
     }
