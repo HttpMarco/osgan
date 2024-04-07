@@ -253,7 +253,11 @@ public final class MessageUtils {
         return format.format(percent) + "%";
     }
 
-    public static String getFormattedInt(int value) {
+    public static String formatNumber(long value) {
         return NumberFormat.getInstance().format(value).replace(",", ".");
+    }
+
+    public static String formatNumber(double value) {
+        return NumberFormat.getInstance().format(value);
     }
 }
