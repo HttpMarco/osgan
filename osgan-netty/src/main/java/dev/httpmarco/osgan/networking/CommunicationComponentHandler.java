@@ -15,14 +15,14 @@ public final class CommunicationComponentHandler extends SimpleChannelInboundHan
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Packet packet) {
-        this.onPacketReceived.listenWithMapping(new ChannelTransmit(ctx.channel()), packet);
         System.out.println("Received packet " + packet.getClass().getSimpleName() + " from " + ctx.channel().remoteAddress());
+        this.onPacketReceived.listenWithMapping(new ChannelTransmit(ctx.channel()), packet);
     }
 
     @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) {
         this.supplyChannelTransmit(ctx.channel(), this.onActive);
-        System.out.println("Channel active: " + ctx.channel().remoteAddress());
+        System.out.println("Connection established with " + ctx.channel().remoteAddress());
     }
 
     @Override

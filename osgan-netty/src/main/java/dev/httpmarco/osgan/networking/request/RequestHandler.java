@@ -4,6 +4,7 @@ import dev.httpmarco.osgan.files.json.JsonObjectSerializer;
 import dev.httpmarco.osgan.files.json.JsonUtils;
 import dev.httpmarco.osgan.networking.CommunicationComponent;
 import dev.httpmarco.osgan.networking.Packet;
+import dev.httpmarco.osgan.networking.client.NettyClient;
 import dev.httpmarco.osgan.networking.request.packets.RegisterResponderPacket;
 import dev.httpmarco.osgan.networking.request.packets.RequestPacket;
 import dev.httpmarco.osgan.networking.server.NettyServer;
@@ -55,7 +56,7 @@ public class RequestHandler {
     public <T extends Packet> void registerResponder(String id, PacketResponder<T> responder) {
         this.responders.put(id, responder);
 
-        if (this.component instanceof NettyServer) {
+        if (this.component instanceof NettyClient) {
             this.component.sendPacket(new RegisterResponderPacket(id));
         }
     }
