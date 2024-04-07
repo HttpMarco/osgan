@@ -16,6 +16,10 @@ public class JsonObjectSerializer {
         this.jsonObject = JsonUtils.getGson().fromJson(gsonObject, JsonObject.class);
     }
 
+    public boolean has(String key) {
+        return jsonObject.has(key);
+    }
+
     public JsonObjectSerializer append(String key, String value) {
         jsonObject.addProperty(key, value);
         return this;

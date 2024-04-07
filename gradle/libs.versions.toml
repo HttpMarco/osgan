@@ -7,10 +7,16 @@ lombok = "1.18.32"
 
 gson = "2.10.1"
 
+#networking
+netty5 = "5.0.0.Alpha5"
+
 [libraries]
 lombok = { group = "org.projectlombok", name="lombok", version.ref = "lombok" }
 annotations = { group = "org.jetbrains", name="annotations", version.ref = "annotations" }
 gson = { group = "com.google.code.gson", name="gson", version.ref = "gson" }
+
+#networking
+netty5 = { group = "io.netty", name = "netty5-all", version.ref = "netty5" }
 
 [plugins]
 nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }
