@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.*;
 
 @Accessors(fluent = true)
 @Getter(AccessLevel.PACKAGE)
@@ -20,6 +20,17 @@ public class Reflections<T> {
 
     public Field[] fields() {
         return clazz.getDeclaredFields();
+    }
+
+    public Set<Field> allFields() {
+        var fields = new HashSet<>(Arrays.asList(clazz.getDeclaredFields()));
+        var scannedPathClass = clazz;
+
+        while (scannedPathClass.getSuperclass() != null) {
+            scannedPathClass = (Class<T>) scannedPathClass.getSuperclass();
+            fields.addAll(Arrays.asList(scannedPathClass.getDeclaredFields()));
+        }
+        return fields;
     }
 
     @SneakyThrows
