@@ -39,8 +39,16 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                                 it.sendPacket(new ChannelTransmitAuthPacket(metadata().id()));
                             }
                             this.transmit = it;
+                            this.reconnectQueue.pauseThread();
                         })
-                        .onInactive(it -> this.transmit = null)
+                        .onInactive(it -> {
+                            this.transmit = null;
+
+                            if (metadata.hasReconnection()) {
+                                System.out.println("Starting reconnect queue...");
+                                this.reconnectQueue.resumeThread();
+                            }
+                        })
                         .onPacketReceived(this::callPacketReceived)
                         .build()))
                 .option(ChannelOption.AUTO_READ, true)
@@ -80,6 +88,7 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                 this.requestHandler().acceptRequest(packet.uniqueId(), packet.packetJson());
             }
         });
+
         this.reconnectQueue.start();
         this.connect();
     }
