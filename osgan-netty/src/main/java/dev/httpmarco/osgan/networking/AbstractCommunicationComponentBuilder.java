@@ -9,6 +9,7 @@ public abstract class AbstractCommunicationComponentBuilder<R extends Communicat
 
     private String hostname = "0.0.0.0";
     private int port = 9090;
+    private ChannelConsumer onActive, onInactive;
 
     public B withPort(int port) {
         this.port = port;
@@ -17,6 +18,16 @@ public abstract class AbstractCommunicationComponentBuilder<R extends Communicat
 
     public B withHostname(String hostname) {
         this.hostname = hostname;
+        return (B) this;
+    }
+
+    public B onActive(ChannelConsumer consumer) {
+        this.onActive = consumer;
+        return (B) this;
+    }
+
+    public B onInactive(ChannelConsumer consumer) {
+        this.onInactive = consumer;
         return (B) this;
     }
 

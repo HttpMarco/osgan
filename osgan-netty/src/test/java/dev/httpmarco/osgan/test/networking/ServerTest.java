@@ -17,7 +17,6 @@ public class ServerTest {
       //
 
         var client = NettyClient.builder()
-                .withId("polo")
                 .withHostname("127.0.0.1")
                 .withConnectTimeout(500)
                 .withReconnect(TimeUnit.SECONDS, 5)

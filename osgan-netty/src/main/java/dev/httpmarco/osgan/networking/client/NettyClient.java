@@ -2,7 +2,6 @@ package dev.httpmarco.osgan.networking.client;
 
 import dev.httpmarco.osgan.files.json.JsonUtils;
 import dev.httpmarco.osgan.networking.*;
-import dev.httpmarco.osgan.networking.packet.ChannelTransmitAuthPacket;
 import dev.httpmarco.osgan.networking.packet.ForwardPacket;
 import dev.httpmarco.osgan.networking.request.packets.BadResponsePacket;
 import dev.httpmarco.osgan.networking.request.packets.RequestPacket;
@@ -35,14 +34,15 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                 .handler(new ChannelInitializer(CommunicationComponentHandler
                         .builder()
                         .onActive(it -> {
-                            if (metadata.id() != null) {
-                                it.sendPacket(new ChannelTransmitAuthPacket(metadata().id()));
-                            }
                             this.transmit = it;
                             this.reconnectQueue.pauseThread();
+
+                            metadata.onActive().listen(it);
                         })
                         .onInactive(it -> {
                             this.transmit = null;
+
+                            metadata.onInactive().listen(it);
 
                             if (metadata.hasReconnection()) {
                                 System.out.println("Starting reconnect queue...");
@@ -54,22 +54,11 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                 .option(ChannelOption.AUTO_READ, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.IP_TOS, 24)
-                //.option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, metadata().connectionTimeout());
 
         if (Epoll.isTcpFastOpenClientSideAvailable()) {
             bootstrap.option(ChannelOption.TCP_FASTOPEN_CONNECT, true);
         }
-
-        this.listen(ForwardPacket.class, (transmit, packet) -> {
-            if (packet.id().equals(metadata.id())) {
-                try {
-                    this.callPacketReceived(transmit, (Packet) JsonUtils.fromJson(packet.packetJson(), Class.forName(packet.className())));
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
 
         this.listen(RequestPacket.class, (transmit, packet) -> {
             if (this.requestHandler().isResponderPresent(packet.id())) {

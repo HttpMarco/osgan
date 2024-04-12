@@ -6,6 +6,6 @@ public final class NettyServerBuilder extends AbstractCommunicationComponentBuil
 
     @Override
     public NettyServer build() {
-        return new NettyServer(new ServerMetadata(hostname(), port()));
+        return new NettyServer(new ServerMetadata(hostname(), port(), onActive(), onInactive()));
     }
 }

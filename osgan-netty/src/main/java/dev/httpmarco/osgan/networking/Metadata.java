@@ -13,5 +13,9 @@ public abstract class Metadata {
     private String hostname;
     // connection port
     private int port;
+    // called when a channel is active
+    private ChannelConsumer onActive;
+    // called when a channel is inactive
+    private ChannelConsumer onInactive;
 
 }

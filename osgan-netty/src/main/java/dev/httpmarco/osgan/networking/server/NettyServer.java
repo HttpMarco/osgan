@@ -2,7 +2,6 @@ package dev.httpmarco.osgan.networking.server;
 
 import dev.httpmarco.osgan.files.json.JsonUtils;
 import dev.httpmarco.osgan.networking.*;
-import dev.httpmarco.osgan.networking.packet.ChannelTransmitAuthPacket;
 import dev.httpmarco.osgan.networking.packet.ForwardPacket;
 import dev.httpmarco.osgan.networking.request.PendingRequest;
 import dev.httpmarco.osgan.networking.request.packets.BadResponsePacket;
@@ -14,9 +13,6 @@ import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
-import io.netty5.channel.epoll.Epoll;
-import io.netty5.handler.codec.FixedLengthFrameDecoder;
-import io.netty5.handler.codec.LineBasedFrameDecoder;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Contract;
@@ -43,33 +39,20 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                 .channelFactory(NetworkUtils.generateChannelFactory())
                 .childHandler(new ChannelInitializer(CommunicationComponentHandler
                         .builder()
-                        .onActive(this.transmits::add)
-                        .onInactive(channel -> {
-                            transmits.remove(channel);
-                            this.unregisterChannel(channel.channel());
+                        .onActive(it -> {
+                            this.transmits.add(it);
+                            metadata.onActive().listen(it);
                         })
-                        .onPacketReceived((channel, packet) -> {
-                            if (packet instanceof ChannelTransmitAuthPacket authPacket) {
-                                transmits.stream().filter(it -> it.channel().equals(channel.channel())).findFirst().ifPresent(transmit -> transmit.id(authPacket.id()));
-                                System.out.println("Channel " + channel.channel().remoteAddress() + " registered with id: " + authPacket.id());
-                                return;
-                            }
-                            callPacketReceived(channel, packet);
+                        .onInactive(it -> {
+                            transmits.remove(it);
+                            this.unregisterChannel(it.channel());
+                            metadata.onInactive().listen(it);
                         })
+                        .onPacketReceived(this::callPacketReceived)
                         .build()))
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.IP_TOS, 24)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
-
-        this.listen(ForwardPacket.class, (channel, packet) -> {
-            var matchingTransmits = this.transmits().stream()
-                    .filter(transmit -> transmit.id() != null && transmit.id().equals(packet.id()))
-                    .toList();
-
-            if (!matchingTransmits.isEmpty()) {
-                matchingTransmits.get(RandomUtils.getRandomNumber(matchingTransmits.size())).sendPacket(packet);
-            }
-        });
 
         this.listen(RegisterResponderPacket.class, (transmit, packet) -> {
             if (!responders.containsKey(packet.id())) {
