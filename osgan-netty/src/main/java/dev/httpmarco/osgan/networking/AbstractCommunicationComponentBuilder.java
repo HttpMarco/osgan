@@ -9,7 +9,8 @@ public abstract class AbstractCommunicationComponentBuilder<R extends Communicat
 
     private String hostname = "0.0.0.0";
     private int port = 9090;
-    private ChannelConsumer onActive, onInactive;
+    private ChannelConsumer onActive = channel -> {};
+    private ChannelConsumer onInactive = channel -> {};
 
     public B withPort(int port) {
         this.port = port;
