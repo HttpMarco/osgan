@@ -1,46 +1,37 @@
 package dev.httpmarco.osgan.reflections;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import org.jetbrains.annotations.Nullable;
+import dev.httpmarco.osgan.reflections.common.Allocator;
+import lombok.*;
+import lombok.experimental.Accessors;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
+import java.util.*;
+import java.util.stream.Stream;
 
-@RequiredArgsConstructor
+@Accessors(fluent = true)
+@Getter(AccessLevel.PACKAGE)
+@SuppressWarnings("unchecked") // it's fine
 @AllArgsConstructor
 public class Reflections<T> {
 
     private final Class<T> clazz;
 
-    private @Nullable Field field;
-    private @Nullable T value;
-
-    public static <D> Reflections<D> of(Class<D> clazz) {
-        return new Reflections<>(clazz);
+    public Field[] fields() {
+        return clazz.getDeclaredFields();
     }
 
-    @SuppressWarnings("unchecked")
-    public static <D> Reflections<D> of(Field field) {
-        return new Reflections<D>((Class<D>) field.getType(), field, null);
-    }
+    public Set<Field> allFields() {
+        var fields = new HashSet<>(Arrays.asList(clazz.getDeclaredFields()));
+        var scannedPathClass = clazz;
 
-    @SuppressWarnings("unchecked")
-    public static <D> Reflections<D> of(D value) {
-        return new Reflections<>((Class<D>) value.getClass(), null, value);
-    }
-
-    public Reflections<T> withValue(Object value) {
-        this.value = clazz.cast(value);
-        return this;
-    }
-
-    public Reflections<T> withField(Field field) {
-        this.field = field;
-        return this;
+        while (scannedPathClass.getSuperclass() != null) {
+            scannedPathClass = (Class<T>) scannedPathClass.getSuperclass();
+            fields.addAll(Arrays.asList(scannedPathClass.getDeclaredFields()));
+        }
+        return fields;
     }
 
     @SneakyThrows
@@ -50,26 +41,19 @@ public class Reflections<T> {
         return field;
     }
 
-    public Class<?>[] generics() {
-        assert field != null;
-        var genericType = field.getGenericType();
-        if (genericType instanceof ParameterizedType parameterizedType) {
-            return Arrays.stream(parameterizedType.getActualTypeArguments()).map(type -> (Class<?>) type).toArray(value -> new Class<?>[value]);
-        } else {
-            throw new UnsupportedOperationException("Cannot read generic from field: " + field.getName());
-        }
+    @Contract("_ -> new")
+    public static <R> @NotNull Reflections<R> on(Class<R> clazz) {
+        return new Reflections<>(clazz);
     }
 
-    @SneakyThrows
-    public Method method(String id) {
-        var method = this.clazz.getDeclaredMethod(id);
-        method.setAccessible(true);
-        return method;
+    @Contract("_ -> new")
+    public static <R> @NotNull Reflections<R> on(R value) {
+        return new ObjectBindingReflection<>((Class<R>) value.getClass(), value);
     }
 
-    @SneakyThrows
-    public T newInstanceWithNoArgs() {
-        return this.clazz.getConstructor().newInstance();
+    @Contract("_ -> new")
+    public static <R> @NotNull Reflections<R> on(Field field) {
+        return new FieldBindingReflections<>((Class<R>) field.getType(), field);
     }
 
     public T allocate() {
@@ -77,35 +61,14 @@ public class Reflections<T> {
     }
 
     @SneakyThrows
-    @SuppressWarnings("unchecked")
-    public T value(Field field) {
-        field.setAccessible(true);
-        return (T) field.get(this.value);
+    public T instance(Object... args) {
+        return clazz.getDeclaredConstructor(Arrays.stream(args).map(Object::getClass).toArray(value -> new Class<?>[value])).newInstance(args);
     }
 
     @SneakyThrows
-    public T value(String fieldId) {
-        return this.value(field(fieldId));
-    }
-
-    @SneakyThrows
-    public void modify(Field field, Object value) {
-        field.setAccessible(true);
-        field.set(this.value, value);
-    }
-
-    @SneakyThrows
-    public void modify(String fieldId, Object value) {
-        this.modify(field(fieldId), value);
-    }
-
-    @SneakyThrows
-    public void applyMethod(Method method, Object... args) {
-        method.invoke(value, args);
-    }
-
-    @SneakyThrows
-    public void applyMethod(String methodId, Object... args) {
-        method(methodId).invoke(value, args);
+    public Method method(String id) {
+        var method = this.clazz.getDeclaredMethod(id);
+        method.setAccessible(true);
+        return method;
     }
 }
