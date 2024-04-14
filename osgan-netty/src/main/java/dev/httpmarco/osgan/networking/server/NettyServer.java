@@ -73,7 +73,7 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                         packet.uniqueId(),
                         JsonUtils.toJson(this.requestHandler().getResponder(packet.id()).response(transmit, packet.properties()))
                 ));
-            } else if (responders.containsKey(packet.id())) {
+            } else if (responders.containsKey(packet.id()) && !responders.get(packet.id()).isEmpty()) {
                 this.pending.put(packet.uniqueId(), new PendingRequest(transmit, packet.id(), packet.uniqueId(), System.currentTimeMillis()));
 
                 var responders = this.responders.get(packet.id());
