@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Accessors(fluent = true)
 @Getter(AccessLevel.PACKAGE)
@@ -47,12 +46,12 @@ public class Reflections<T> {
     }
 
     @Contract("_ -> new")
-    public static <R> @NotNull Reflections<R> on(R value) {
+    public static <R> @NotNull ObjectBindingReflection<R> on(R value) {
         return new ObjectBindingReflection<>((Class<R>) value.getClass(), value);
     }
 
     @Contract("_ -> new")
-    public static <R> @NotNull Reflections<R> on(Field field) {
+    public static <R> @NotNull FieldBindingReflections<R> on(Field field) {
         return new FieldBindingReflections<>((Class<R>) field.getType(), field);
     }
 
