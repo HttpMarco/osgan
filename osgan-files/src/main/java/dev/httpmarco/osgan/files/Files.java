@@ -22,7 +22,7 @@ public class Files {
 
     @SneakyThrows
     public static void createDirectoryIfNotExists(Path path) {
-        if(java.nio.file.Files.exists(path)) {
+        if(!java.nio.file.Files.exists(path)) {
             java.nio.file.Files.createDirectory(path);
         }
     }
