@@ -21,6 +21,13 @@ public class Files {
     }
 
     @SneakyThrows
+    public void createDirectoryIfNotExists(Path path) {
+        if(java.nio.file.Files.exists(path)) {
+            java.nio.file.Files.createDirectory(path);
+        }
+    }
+
+    @SneakyThrows
     public static void writeString(Path path, String content) {
         java.nio.file.Files.writeString(path, content);
     }
