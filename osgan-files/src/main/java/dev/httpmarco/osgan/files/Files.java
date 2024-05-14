@@ -21,7 +21,7 @@ public class Files {
     }
 
     @SneakyThrows
-    public void createDirectoryIfNotExists(Path path) {
+    public static void createDirectoryIfNotExists(Path path) {
         if(java.nio.file.Files.exists(path)) {
             java.nio.file.Files.createDirectory(path);
         }
