@@ -5,7 +5,7 @@ nexusPublish = "2.0.0"
 annotations = "24.1.0"
 lombok = "1.18.32"
 
-gson = "2.10.1"
+gson = "2.11.0"
 
 #networking
 netty5 = "5.0.0.Alpha5"
