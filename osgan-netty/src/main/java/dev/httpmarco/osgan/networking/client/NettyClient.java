@@ -45,7 +45,6 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
                             metadata.onInactive().listen(it);
 
                             if (metadata.hasReconnection()) {
-                                System.out.println("Starting reconnect queue...");
                                 this.reconnectQueue.resumeThread();
                             }
                         })
@@ -68,8 +67,6 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
         this.listen(BadResponsePacket.class, (transmit, packet) -> {
             if (this.requestHandler().isRequestPresent(packet.uniqueId())) {
                 this.requestHandler().removeRequest(packet.uniqueId());
-
-                System.out.println("Received bad response for request '" + packet.uniqueId() + "': " + packet.message());
             }
         });
         this.listen(ResponsePacket.class, (transmit, packet) -> {

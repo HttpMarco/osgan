@@ -42,8 +42,6 @@ public final class ReconnectQueue extends Thread {
 
             sleep(RECONNECT_TIMEOUT);
 
-            System.out.println("Trying to connect");
-
             if (!this.nettyClient.isConnected()) {
                 this.nettyClient.connect();
             }

@@ -65,7 +65,6 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
 
             this.responders.get(packet.id()).add(transmit.channel());
             this.respondersByChannel.get(transmit.channel()).add(packet.id());
-            System.out.println("Registered responder: " + packet.id());
         });
         this.listen(RequestPacket.class, (transmit, packet) -> {
             if (this.requestHandler().isResponderPresent(packet.id())) {
@@ -80,8 +79,6 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                 var rndm = RandomUtils.getRandomNumber(responders.size());
 
                 this.sendPacket(responders.get(rndm), packet);
-
-                System.out.println("Received request '" + packet.uniqueId() + "': id: " + packet.id() + " - properties: " + packet.properties());
             } else {
                 var err = "No responder registered for id '" + packet.id() + "'";
 
@@ -103,7 +100,6 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
         bootstrap.bind(metadata().hostname(), metadata().port()).addListener(handleConnectionRelease())
                 .addListener(future -> {
                     if (future.isSuccess()) {
-                        System.out.println("Started netty server on port " + metadata.port() + "!");
                     } else {
                         new RuntimeException(future.cause());
                     }
@@ -145,7 +141,6 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
             var responders = this.respondersByChannel.get(channel);
             for (var responder : responders) {
                 this.responders.get(responder).remove(channel);
-                System.out.println("Unregistered responder: " + responder);
             }
             this.respondersByChannel.remove(channel);
         }
