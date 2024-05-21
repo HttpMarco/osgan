@@ -12,6 +12,13 @@ import java.util.concurrent.TimeUnit;
 @Accessors(fluent = true)
 public class FutureResult<E> extends CompletableFuture<E> {
 
+    public FutureResult() {
+        this.exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
     public E sync(E defaultValue, long secondTimeout) {
         try {
             return get(secondTimeout, TimeUnit.SECONDS);

@@ -104,6 +104,8 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
                 .addListener(future -> {
                     if (future.isSuccess()) {
                         System.out.println("Started netty server on port " + metadata.port() + "!");
+                    } else {
+                        new RuntimeException(future.cause());
                     }
                 });
     }
