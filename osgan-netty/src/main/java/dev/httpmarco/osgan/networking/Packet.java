@@ -1,9 +1,11 @@
 package dev.httpmarco.osgan.networking;
 
-import java.io.Serial;
-import java.io.Serializable;
+import dev.httpmarco.osgan.networking.codec.CodecBuffer;
 
-public abstract class Packet implements Serializable {
+public abstract class Packet {
 
+    public abstract void onRead(CodecBuffer buffer);
+
+    public abstract void onWrite(CodecBuffer buffer);
 
 }

@@ -13,4 +13,14 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RegisterResponderPacket extends Packet {
     private String id;
+
+    @Override
+    public void onRead(CodecBuffer buffer) {
+
+    }
+
+    @Override
+    public void onWrite(CodecBuffer buffer) {
+
+    }
 }

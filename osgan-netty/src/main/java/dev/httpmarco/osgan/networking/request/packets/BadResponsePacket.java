@@ -16,4 +16,13 @@ public class BadResponsePacket extends Packet {
     private final UUID uniqueId;
     private final String message;
 
+    @Override
+    public void onRead(CodecBuffer buffer) {
+
+    }
+
+    @Override
+    public void onWrite(CodecBuffer buffer) {
+
+    }
 }

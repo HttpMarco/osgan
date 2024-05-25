@@ -1,9 +1,10 @@
 package dev.httpmarco.osgan.test.networking;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.UUID;
 
-public class VerifyPlayer {
+public class VerifyPlayer implements Serializable {
 
     private UUID uniqueId;
     private String tsId;

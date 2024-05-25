@@ -1,8 +1,8 @@
 package dev.httpmarco.osgan.networking.server;
 
-import dev.httpmarco.osgan.files.json.JsonUtils;
+
+import dev.httpmarco.osgan.files.json.JsonObjectSerializer;
 import dev.httpmarco.osgan.networking.*;
-import dev.httpmarco.osgan.networking.packet.ForwardPacket;
 import dev.httpmarco.osgan.networking.request.PendingRequest;
 import dev.httpmarco.osgan.networking.request.packets.BadResponsePacket;
 import dev.httpmarco.osgan.networking.request.packets.RegisterResponderPacket;
@@ -70,7 +70,7 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
             if (this.requestHandler().isResponderPresent(packet.id())) {
                 transmit.sendPacket(new ResponsePacket(
                         packet.uniqueId(),
-                        JsonUtils.toJson(this.requestHandler().getResponder(packet.id()).response(transmit, packet.properties()))
+                        this.requestHandler().getResponder(packet.id()).response(transmit, new JsonObjectSerializer(packet.properties()))
                 ));
             } else if (responders.containsKey(packet.id()) && !responders.get(packet.id()).isEmpty()) {
                 this.pending.put(packet.uniqueId(), new PendingRequest(transmit, packet.id(), packet.uniqueId(), System.currentTimeMillis()));

@@ -23,12 +23,11 @@ public final class ChannelTransmit {
     }
 
     public void redirectPacket(String id, Packet object) {
-      //  this.sendPacket(new ForwardPacket(id, object));
+        //this.sendPacket(new ForwardPacket(id, object));
     }
 
     @SneakyThrows
     private void writeAndFlush(Channel channel, Packet packet) {
-        System.out.println("write and flush");
         channel.writeAndFlush(packet);
     }
 }

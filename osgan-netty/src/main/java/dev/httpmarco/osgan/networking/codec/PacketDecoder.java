@@ -22,20 +22,13 @@ public class PacketDecoder extends ByteToMessageDecoder {
             var content = new CodecBuffer(in.copy(in.readerOffset(), readableBytes, true));
             in.skipReadableBytes(readableBytes);
 
-            Packet packet = null;
+            Packet packet = (Packet) Allocator.allocate(Class.forName(className));
 
-            try (var byteInStream = new ByteArrayInputStream(content.readBytes());
-                 var inStream = new ObjectInputStream(byteInStream)) {
-                packet = (Packet) inStream.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            packet.onRead(content);
 
             buffer.resetBuffer();
 
-            if (packet != null) {
-                ctx.fireChannelRead(packet);
-            }
+            ctx.fireChannelRead(packet);
         } catch (Exception e) {
             System.err.println("Error while decoding packet " + className);
             e.printStackTrace();

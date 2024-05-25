@@ -1,13 +1,11 @@
 package dev.httpmarco.osgan.networking.request;
 
 import dev.httpmarco.osgan.files.json.JsonObjectSerializer;
-import dev.httpmarco.osgan.files.json.JsonUtils;
 import dev.httpmarco.osgan.networking.CommunicationComponent;
 import dev.httpmarco.osgan.networking.Packet;
 import dev.httpmarco.osgan.networking.client.NettyClient;
 import dev.httpmarco.osgan.networking.request.packets.RegisterResponderPacket;
 import dev.httpmarco.osgan.networking.request.packets.RequestPacket;
-import dev.httpmarco.osgan.networking.server.NettyServer;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
@@ -32,14 +30,14 @@ public class RequestHandler {
     public <T extends Packet> void request(String id, JsonObjectSerializer properties, Class<T> responsePacket, Consumer<T> consumer) {
         var uniqueId = UUID.randomUUID();
 
-        this.component.sendPacket(new RequestPacket(id, uniqueId, properties));
+        this.component.sendPacket(new RequestPacket(id, uniqueId, properties.toString()));
 
         this.requests.put(uniqueId, (Consumer<Packet>) consumer);
         this.requestClass.put(uniqueId, responsePacket);
     }
 
-    public void acceptRequest(UUID uniqueId, String responseJson) {
-        this.requests.get(uniqueId).accept(JsonUtils.fromJson(responseJson, this.requestClass.get(uniqueId)));
+    public void acceptRequest(UUID uniqueId, Packet packet) {
+        this.requests.get(uniqueId).accept(packet);
         this.removeRequest(uniqueId);
     }
 

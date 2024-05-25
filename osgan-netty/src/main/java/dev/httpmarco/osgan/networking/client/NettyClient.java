@@ -1,5 +1,6 @@
 package dev.httpmarco.osgan.networking.client;
 
+import dev.httpmarco.osgan.files.json.JsonObjectSerializer;
 import dev.httpmarco.osgan.files.json.JsonUtils;
 import dev.httpmarco.osgan.networking.*;
 import dev.httpmarco.osgan.networking.packet.ForwardPacket;
@@ -61,7 +62,7 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
 
         this.listen(RequestPacket.class, (transmit, packet) -> {
             if (this.requestHandler().isResponderPresent(packet.id())) {
-                this.sendPacket(new ResponsePacket(packet.uniqueId(), JsonUtils.toJson(this.requestHandler().getResponder(packet.id()).response(transmit, packet.properties()))));
+                this.sendPacket(new ResponsePacket(packet.uniqueId(), this.requestHandler().getResponder(packet.id()).response(transmit, new JsonObjectSerializer(packet.properties()))));
             }
         });
         this.listen(BadResponsePacket.class, (transmit, packet) -> {
@@ -71,7 +72,7 @@ public final class NettyClient extends CommunicationComponent<ClientMetadata> {
         });
         this.listen(ResponsePacket.class, (transmit, packet) -> {
             if (this.requestHandler().isRequestPresent(packet.uniqueId())) {
-                this.requestHandler().acceptRequest(packet.uniqueId(), packet.packetJson());
+                this.requestHandler().acceptRequest(packet.uniqueId(), packet.packet());
             }
         });
 
