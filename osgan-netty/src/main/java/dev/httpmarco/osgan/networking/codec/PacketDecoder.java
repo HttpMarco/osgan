@@ -1,12 +1,16 @@
 package dev.httpmarco.osgan.networking.codec;
 
 import dev.httpmarco.osgan.networking.Packet;
+import dev.httpmarco.osgan.reflections.common.Allocator;
 import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.ByteToMessageDecoder;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 public class PacketDecoder extends ByteToMessageDecoder {
-    @SuppressWarnings("unchecked")
     @Override
     protected void decode(ChannelHandlerContext ctx, Buffer in) {
         var buffer = new CodecBuffer(in);
@@ -18,12 +22,20 @@ public class PacketDecoder extends ByteToMessageDecoder {
             var content = new CodecBuffer(in.copy(in.readerOffset(), readableBytes, true));
             in.skipReadableBytes(readableBytes);
 
-            Class<? extends Packet> packetClass = (Class<? extends Packet>) Class.forName(className);
-            var packet = packetClass.getConstructor(CodecBuffer.class).newInstance(content);
+            Packet packet = null;
+
+            try (var byteInStream = new ByteArrayInputStream(content.readBytes());
+                 var inStream = new ObjectInputStream(byteInStream)) {
+                packet = (Packet) inStream.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
 
             buffer.resetBuffer();
 
-            ctx.fireChannelRead(packet);
+            if (packet != null) {
+                ctx.fireChannelRead(packet);
+            }
         } catch (Exception e) {
             System.err.println("Error while decoding packet " + className);
             e.printStackTrace();

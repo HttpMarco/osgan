@@ -1,6 +1,6 @@
 dependencies {
     implementation(libs.netty5)
-    compileOnly(libs.gson)
+   // compileOnly(libs.gson)
     api(project(":osgan-utils"))
     api(project(":osgan-files"))
     api(project(":osgan-reflections"))

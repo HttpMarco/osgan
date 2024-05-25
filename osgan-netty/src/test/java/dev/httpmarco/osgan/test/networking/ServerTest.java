@@ -1,45 +1,32 @@
 package dev.httpmarco.osgan.test.networking;
 
-import dev.httpmarco.osgan.files.json.JsonUtils;
 import dev.httpmarco.osgan.networking.client.NettyClient;
 import dev.httpmarco.osgan.networking.server.NettyServer;
 import org.junit.jupiter.api.Test;
 
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ServerTest {
 
     @Test
     public void handle() throws InterruptedException {
-       // System.out.println(JsonUtils.fromJson(JsonUtils.toJson(new AuthPacket()), AuthPacket.class));
-
-      //
-
-        var client = NettyClient.builder()
-                .withHostname("127.0.0.1")
-                .withConnectTimeout(500)
-                .withReconnect(TimeUnit.SECONDS, 5)
-                .build();
-
-
-       Thread.sleep(11000);
-
         var server = NettyServer.builder().build();
 
-        Thread.sleep(11000);
+        AtomicLong time = new AtomicLong(System.currentTimeMillis());
 
-     //   client.sendPacket(new AuthPacket());
+        server.listen(AuthPacket.class, (channel, packet) -> {
+            System.out.println((System.currentTimeMillis() - time.get()) + "is da" +          packet.test1());
+        });
 
-    //    Thread.sleep(1000);
+        var client = NettyClient.builder()
+                .withConnectTimeout(500)
+                .build();
 
-        server.close();
+        client.connect();
+        Thread.sleep(1000);
+        time.set(System.currentTimeMillis());
+        client.sendPacket(new AuthPacket("test", 783123));
 
-
-        Thread.sleep(11000);
-
-        server = NettyServer.builder().build();
-
-        Thread.sleep(11000);
+        Thread.currentThread().join();
     }
 }

@@ -11,26 +11,9 @@ import java.util.UUID;
 
 @Getter
 @Accessors(fluent = true)
+@AllArgsConstructor
 public class RequestPacket extends Packet {
     private final String id;
     private final UUID uniqueId;
     private final JsonObjectSerializer properties;
-
-    public RequestPacket(String id, UUID uniqueId, JsonObjectSerializer properties) {
-        this.id = id;
-        this.uniqueId = uniqueId;
-        this.properties = properties;
-
-        this.getBuffer().writeString(this.id)
-                .writeUniqueId(this.uniqueId)
-                .writeJsonDocument(this.properties);
-    }
-
-    public RequestPacket(CodecBuffer buffer) {
-        super(buffer);
-
-        this.id = buffer.readString();
-        this.uniqueId = buffer.readUniqueId();
-        this.properties = buffer.readJsonDocument();
-    }
 }

@@ -99,8 +99,7 @@ public final class NettyServer extends CommunicationComponent<ServerMetadata> {
 
         bootstrap.bind(metadata().hostname(), metadata().port()).addListener(handleConnectionRelease())
                 .addListener(future -> {
-                    if (future.isSuccess()) {
-                    } else {
+                    if (!future.isSuccess()) {
                         new RuntimeException(future.cause());
                     }
                 });

@@ -10,18 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Accessors(fluent = true)
+@AllArgsConstructor
 public class RegisterResponderPacket extends Packet {
     private String id;
-
-    public RegisterResponderPacket(String id) {
-        this.id = id;
-
-        this.getBuffer().writeString(this.id);
-    }
-
-    public RegisterResponderPacket(CodecBuffer buffer) {
-        super(buffer);
-
-        this.id = buffer.readString();
-    }
 }

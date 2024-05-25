@@ -5,12 +5,14 @@ import lombok.experimental.Accessors;
 
 @Getter
 @Accessors(fluent = true)
+@SuppressWarnings("unchecked")
 public abstract class AbstractCommunicationComponentBuilder<R extends CommunicationComponent<?>, B extends AbstractCommunicationComponentBuilder<R, ?>> {
 
     private String hostname = "0.0.0.0";
     private int port = 9090;
     private ChannelConsumer onActive = channel -> {};
     private ChannelConsumer onInactive = channel -> {};
+
 
     public B withPort(int port) {
         this.port = port;

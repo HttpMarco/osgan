@@ -1,21 +1,19 @@
 package dev.httpmarco.osgan.networking.codec;
 
-import dev.httpmarco.osgan.files.json.JsonObjectSerializer;
 import io.netty5.buffer.Buffer;
 import io.netty5.buffer.BufferAllocator;
 import io.netty5.buffer.DefaultBufferAllocators;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.MappedByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 @AllArgsConstructor
@@ -45,15 +43,6 @@ public class CodecBuffer {
 
     public String readString() {
         return this.origin.readCharSequence(this.origin.readInt(), StandardCharsets.UTF_8).toString();
-    }
-
-    public CodecBuffer writeJsonDocument(JsonObjectSerializer jsonDocument) {
-        this.writeString(jsonDocument.toString());
-        return this;
-    }
-
-    public JsonObjectSerializer readJsonDocument() {
-        return new JsonObjectSerializer(this.readString());
     }
 
     public CodecBuffer writeBoolean(Boolean booleanValue) {
@@ -185,7 +174,21 @@ public class CodecBuffer {
     }
 
     public CodecBuffer writeBytes(byte[] bytes) {
-        this.origin.writeBytes(bytes);
+
+        this.origin.writeInt(bytes.length);
+
+        for (byte b : bytes) {
+            this.origin.writeByte(b);
+        }
         return this;
+    }
+
+    public byte[] readBytes() {
+        var elements = new byte[this.origin.readInt()];
+
+        for (int i = 0; i < elements.length; i++) {
+            elements[i] = this.origin.readByte();
+        }
+        return elements;
     }
 }

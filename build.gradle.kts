@@ -22,6 +22,9 @@ allprojects {
 
         implementation(rootProject.libs.annotations)
         annotationProcessor(rootProject.libs.annotations)
+
+        testAnnotationProcessor(rootProject.libs.lombok)
+        testImplementation(rootProject.libs.lombok)
     }
 
     tasks.withType<JavaCompile> {

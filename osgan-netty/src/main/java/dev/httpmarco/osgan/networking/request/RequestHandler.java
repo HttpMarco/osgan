@@ -40,7 +40,6 @@ public class RequestHandler {
 
     public void acceptRequest(UUID uniqueId, String responseJson) {
         this.requests.get(uniqueId).accept(JsonUtils.fromJson(responseJson, this.requestClass.get(uniqueId)));
-
         this.removeRequest(uniqueId);
     }
 

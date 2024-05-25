@@ -7,31 +7,59 @@ import io.netty5.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty5.handler.codec.MessageToByteEncoder;
 import io.netty5.handler.stream.ChunkedInput;
 import io.netty5.handler.stream.ChunkedWriteHandler;
+import lombok.SneakyThrows;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 
 public class PacketEncoder extends MessageToByteEncoder<Packet> {
-    @Override
-    protected Buffer allocateBuffer(ChannelHandlerContext ctx, Packet msg) {
-        // amount of chars in class name
-        var bytes = Integer.BYTES +
-                // class name
-                msg.getClass().getName().getBytes(StandardCharsets.UTF_8).length +
-                // amount of bytes in buffer
-                Integer.BYTES +
-                // buffer content
-                msg.getBuffer().getOrigin().readableBytes();
 
-        return ctx.bufferAllocator().allocate(bytes);
+
+    private static final HashMap<Packet, CodecBuffer> tempPacketEncoderList = new HashMap<>();
+
+    @Override
+    @SneakyThrows
+    protected Buffer allocateBuffer(ChannelHandlerContext ctx, Packet msg) {
+        try {
+            System.out.println("1239m8fme8fm");
+            ByteArrayOutputStream BYTE_PACKET_OUTPUT = new ByteArrayOutputStream();
+            var outStream = new ObjectOutputStream(BYTE_PACKET_OUTPUT);
+            var buffer = CodecBuffer.allocate();
+
+            System.out.println("1239m8fme8fm + " + msg.getClass().getSimpleName());
+            outStream.writeObject(msg);
+            System.out.println("1239m8fme8fm");
+            outStream.flush();
+            System.out.println("1239m8fme8fm");
+            buffer.writeBytes(BYTE_PACKET_OUTPUT.toByteArray());
+            tempPacketEncoderList.put(msg, buffer);
+            System.out.println("1239m8fme8fm");
+            // amount of chars in class name
+            var bytes = Integer.BYTES +
+                    // class name
+                    msg.getClass().getName().getBytes(StandardCharsets.UTF_8).length +
+                    // amount of bytes in buffer
+                    Integer.BYTES +
+                    // buffer content
+                    buffer.getOrigin().readableBytes();
+            System.out.println("1239m8fme8fm");
+            return ctx.bufferAllocator().allocate(bytes);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return null;
     }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet msg, Buffer out) {
         try {
-            var origin = msg.getBuffer().getOrigin();
+            System.out.println("##############");
+            var origin = tempPacketEncoderList.get(msg).getOrigin();
             var buffer = new CodecBuffer(out);
             var readableBytes = origin.readableBytes();
-            
+
             buffer.writeString(msg.getClass().getName());
             buffer.writeInt(readableBytes);
 
@@ -41,5 +69,6 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
             System.err.println("Error while encoding packet " + msg.getClass().getName());
             e.printStackTrace();
         }
+        tempPacketEncoderList.remove(msg);
     }
 }
