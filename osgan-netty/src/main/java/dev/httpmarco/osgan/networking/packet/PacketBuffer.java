@@ -1,4 +1,4 @@
-package dev.httpmarco.osgan.networking.codec;
+package dev.httpmarco.osgan.networking.packet;
 
 import io.netty5.buffer.Buffer;
 import io.netty5.buffer.BufferAllocator;
@@ -6,25 +6,21 @@ import io.netty5.buffer.DefaultBufferAllocators;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.nio.MappedByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @AllArgsConstructor
-public class CodecBuffer {
+public final class PacketBuffer {
     private static final BufferAllocator BUFFER_ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
 
     @Getter
     private final Buffer origin;
 
-    public static CodecBuffer allocate() {
-        return new CodecBuffer(BUFFER_ALLOCATOR.allocate(0));
+    public static PacketBuffer allocate() {
+        return new PacketBuffer(BUFFER_ALLOCATOR.allocate(0));
     }
 
     public void resetBuffer() {
@@ -34,7 +30,7 @@ public class CodecBuffer {
         }
     }
 
-    public CodecBuffer writeString(String value) {
+    public PacketBuffer writeString(String value) {
         var bytes = value.getBytes(StandardCharsets.UTF_8);
         this.origin.writeInt(bytes.length);
         this.origin.writeBytes(bytes);
@@ -45,7 +41,7 @@ public class CodecBuffer {
         return this.origin.readCharSequence(this.origin.readInt(), StandardCharsets.UTF_8).toString();
     }
 
-    public CodecBuffer writeBoolean(Boolean booleanValue) {
+    public PacketBuffer writeBoolean(Boolean booleanValue) {
         this.origin.writeBoolean(booleanValue);
         return this;
     }
@@ -54,7 +50,7 @@ public class CodecBuffer {
         return this.origin.readBoolean();
     }
 
-    public CodecBuffer writeUniqueId(UUID uniqueId) {
+    public PacketBuffer writeUniqueId(UUID uniqueId) {
         this.origin.writeLong(uniqueId.getMostSignificantBits());
         this.origin.writeLong(uniqueId.getLeastSignificantBits());
         return this;
@@ -64,7 +60,7 @@ public class CodecBuffer {
         return new UUID(this.origin.readLong(), this.origin.readLong());
     }
 
-    public CodecBuffer writeInt(int value) {
+    public PacketBuffer writeInt(int value) {
         this.origin.writeInt(value);
         return this;
     }
@@ -73,7 +69,7 @@ public class CodecBuffer {
         return this.origin.readInt();
     }
 
-    public CodecBuffer writeEnum(Enum<?> value) {
+    public PacketBuffer writeEnum(Enum<?> value) {
         this.origin.writeInt(value.ordinal());
         return this;
     }
@@ -82,27 +78,8 @@ public class CodecBuffer {
         return clazz.getEnumConstants()[this.origin.readInt()];
     }
 
-    public CodecBuffer writeObject(@Nullable Object object, Consumer<CodecBuffer> consumer) {
-        this.writeBoolean(object != null);
 
-        if (object != null) {
-            consumer.accept(this);
-        }
-
-        return this;
-    }
-
-    public <T> @Nullable T readObject(Class<T> tClass, Supplier<T> supplier) {
-        var notNull = this.readBoolean();
-
-        if (notNull) {
-            return supplier.get();
-        } else {
-            return null;
-        }
-    }
-
-    public <T> void writeList(@NotNull List<T> list, BiConsumer<CodecBuffer, T> consumer) {
+    public <T> void writeList(@NotNull List<T> list, BiConsumer<PacketBuffer, T> consumer) {
         this.writeInt(list.size());
 
         list.forEach(o -> consumer.accept(this, o));
@@ -118,12 +95,12 @@ public class CodecBuffer {
         return list;
     }
 
-    public void writeBuffer(CodecBuffer buffer) {
+    public void writeBuffer(PacketBuffer buffer) {
         this.writeInt(buffer.getOrigin().readableBytes());
         this.writeBytes(buffer.getOrigin());
     }
 
-    public CodecBuffer writeLong(long value) {
+    public PacketBuffer writeLong(long value) {
         this.origin.writeLong(value);
         return this;
     }
@@ -132,7 +109,7 @@ public class CodecBuffer {
         return this.origin.readLong();
     }
 
-    public CodecBuffer writeFloat(float value) {
+    public PacketBuffer writeFloat(float value) {
         this.origin.writeFloat(value);
         return this;
     }
@@ -141,7 +118,7 @@ public class CodecBuffer {
         return this.origin.readFloat();
     }
 
-    public CodecBuffer writeDouble(double value) {
+    public PacketBuffer writeDouble(double value) {
         this.origin.writeDouble(value);
         return this;
     }
@@ -154,12 +131,12 @@ public class CodecBuffer {
         return this.origin.readShort();
     }
 
-    public CodecBuffer writeShort(short value) {
+    public PacketBuffer writeShort(short value) {
         this.origin.writeShort(value);
         return this;
     }
 
-    public CodecBuffer writeByte(byte value) {
+    public PacketBuffer writeByte(byte value) {
         this.origin.writeByte(value);
         return this;
     }
@@ -168,12 +145,12 @@ public class CodecBuffer {
         return this.origin.readByte();
     }
 
-    public CodecBuffer writeBytes(Buffer bytes) {
+    public PacketBuffer writeBytes(Buffer bytes) {
         this.origin.writeBytes(bytes);
         return this;
     }
 
-    public CodecBuffer writeBytes(byte[] bytes) {
+    public PacketBuffer writeBytes(byte[] bytes) {
 
         this.origin.writeInt(bytes.length);
 

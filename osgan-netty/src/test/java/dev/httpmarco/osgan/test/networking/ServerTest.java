@@ -1,43 +1,37 @@
 package dev.httpmarco.osgan.test.networking;
 
-import dev.httpmarco.osgan.networking.client.NettyClient;
-import dev.httpmarco.osgan.networking.server.NettyServer;
+import dev.httpmarco.osgan.networking.CommunicationProperty;
+import dev.httpmarco.osgan.networking.client.CommunicationClient;
+import dev.httpmarco.osgan.networking.server.CommunicationServer;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
-import java.util.concurrent.atomic.AtomicLong;
+
+import java.util.UUID;
 
 public class ServerTest {
 
     @Test
-    public void handle() throws InterruptedException {
-        var server = NettyServer.builder().build();
+    @SneakyThrows
+    public void handle() {
 
-        AtomicLong time = new AtomicLong(System.currentTimeMillis());
+        var server = new CommunicationServer("127.0.0.1", 8080);
+        var client = new CommunicationClient("127.0.0.1", 8080);
 
-        server.listen(AuthPacket.class, (channel, packet) -> {
-            System.out.println((System.currentTimeMillis() - time.get()) + " ms");
+        server.initialize();
+        client.initialize();
+
+        Thread.sleep(200);
+
+        client.sendPacket(new testpacket("test", UUID.randomUUID(), System.currentTimeMillis()));
+
+        server.responder("players", property -> new testpacket("polo", UUID.randomUUID(), System.currentTimeMillis()));
+
+        client.request("players", new CommunicationProperty(), testpacket.class, testpacket -> {
+            System.out.println("request work");
         });
 
-        server.registerResponder("groups-all", (transmit, properties) -> {
-            return new AuthPacket("a", 4432);
-        });
-
-        var client = NettyClient.builder()
-                .withConnectTimeout(500)
-                .build();
-
-        client.connect();
-        Thread.sleep(1000);
-        time.set(System.currentTimeMillis());
-
-        client.sendPacket(new AuthPacket("a", 43));
-
-        /*
-        client.request("groups-all", AuthPacket.class, authPacket -> {
-            System.out.println("response");
-            System.out.println((System.currentTimeMillis() - time.get()) + " ms");
-        });
-
-         */
+        server.channels().get(0).sendPacket(new testpacket("test2", UUID.randomUUID(), System.currentTimeMillis()));
+        server.sendPacket(new testpacket("test3", UUID.randomUUID(), System.currentTimeMillis()));
 
         Thread.currentThread().join();
     }
