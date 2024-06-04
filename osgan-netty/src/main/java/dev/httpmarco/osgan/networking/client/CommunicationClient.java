@@ -4,18 +4,21 @@ import dev.httpmarco.osgan.networking.CommunicationComponent;
 import dev.httpmarco.osgan.networking.CommunicationNetworkUtils;
 import dev.httpmarco.osgan.networking.CommunicationTransmitHandler;
 import dev.httpmarco.osgan.networking.channel.ChannelInitializer;
+import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
 import dev.httpmarco.osgan.networking.packet.Packet;
 import io.netty5.bootstrap.Bootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.epoll.Epoll;
+
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class CommunicationClient extends CommunicationComponent {
 
     private final Bootstrap bootstrap;
     private CommunicationClientTransmit channelTransmit;
 
-    public CommunicationClient(String hostname, int port) {
+    public CommunicationClient(String hostname, int port, Consumer<ChannelTransmit> clientConnected) {
         super(0, hostname, port);
 
         // default listener transmit
@@ -24,7 +27,10 @@ public final class CommunicationClient extends CommunicationComponent {
         this.bootstrap = new Bootstrap()
                 .group(bossGroup())
                 .channelFactory(CommunicationNetworkUtils::createChannelFactory)
-                .handler(new ChannelInitializer(new CommunicationTransmitHandler(it -> List.of(channelTransmit), (it, channel) -> this.channelTransmit.call(it, channel), it -> this.channelTransmit = CommunicationClientTransmit.of(this, it))))
+                .handler(new ChannelInitializer(new CommunicationTransmitHandler(it -> List.of(channelTransmit), (it, channel) -> this.channelTransmit.call(it, channel), it -> {
+                    this.channelTransmit = CommunicationClientTransmit.of(this, it);
+                    clientConnected.accept(this.channelTransmit);
+                })))
                 .option(ChannelOption.AUTO_READ, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.IP_TOS, 24)
