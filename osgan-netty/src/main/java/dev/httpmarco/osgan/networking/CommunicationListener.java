@@ -40,6 +40,11 @@ public abstract class CommunicationListener {
         sendPacket(new RequestPacket(id, uuid, property));
     }
 
+    public <P extends Packet> void request(String id, Class<P> packet, Consumer<P> packetCallback) {
+        request(id, new CommunicationProperty(), packet, packetCallback);
+    }
+
+
     public void callResponder(ChannelTransmit channelTransmit, @NotNull RequestPacket requestPacket) {
         if (!responders.containsKey(requestPacket.id())) {
             channelTransmit.sendPacket(new BadRequestPacket(requestPacket.uuid()));
