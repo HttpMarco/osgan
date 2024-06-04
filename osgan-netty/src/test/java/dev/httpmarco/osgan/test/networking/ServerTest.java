@@ -24,9 +24,12 @@ public class ServerTest {
 
         client.sendPacket(new testpacket("test", UUID.randomUUID(), System.currentTimeMillis()));
 
-        server.responder("players", property -> new testpacket("polo", UUID.randomUUID(), System.currentTimeMillis()));
+        server.responder("players", property -> {
+            System.out.println(property.getInteger("test"));
+            return new testpacket("polo", UUID.randomUUID(), System.currentTimeMillis());
+        });
 
-        client.request("players", new CommunicationProperty(), testpacket.class, testpacket -> {
+        client.request("players", new CommunicationProperty().set("test", 200), testpacket.class, testpacket -> {
             System.out.println("request work");
         });
 
