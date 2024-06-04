@@ -18,8 +18,8 @@ public final class CommunicationClientTransmit extends ChannelTransmit {
     }
 
     @Override
-    public <P extends Packet> void call(@NotNull P packet, ChannelTransmit transmit) {
-        this.communicationComponent.call(packet, transmit);
+    public <P extends Packet> boolean call(@NotNull P packet, ChannelTransmit transmit) {
+        return this.communicationComponent.call(packet, transmit);
     }
 
     @Override

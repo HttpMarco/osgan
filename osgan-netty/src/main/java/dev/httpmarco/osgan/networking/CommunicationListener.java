@@ -55,35 +55,35 @@ public abstract class CommunicationListener {
         this.responders.put(id, packetFunction);
     }
 
-    public <P extends Packet> void call(@NotNull P packet, ChannelTransmit channelTransmit) {
+    public <P extends Packet> boolean call(@NotNull P packet, ChannelTransmit channelTransmit) {
         if (packet instanceof RequestPacket requestPacket) {
-            System.out.println("request packet");
             this.callResponder(channelTransmit, requestPacket);
-            return;
+            return true;
         }
 
         if (packet instanceof RequestResponsePacket requestResponsePacket) {
             if (!this.requests.containsKey(requestResponsePacket.uuid())) {
-                return;
+                return true;
             }
             this.requests.get(requestResponsePacket.uuid()).accept(requestResponsePacket.response());
             this.requests.remove(requestResponsePacket.uuid());
-            return;
+            return true;
         }
 
         if (packet instanceof BadRequestPacket badRequestPacket) {
             this.requests.remove(badRequestPacket.uuid());
             System.out.println("Invalid request from: " + badRequestPacket.uuid());
-            return;
+            return true;
         }
 
         if (!this.listeners.containsKey(packet.getClass())) {
-            return;
+            return false;
         }
 
         for (var consumer : this.listeners.get(packet.getClass())) {
             consumer.accept(channelTransmit, packet);
         }
+        return true;
     }
 
     public abstract void sendPacket(Packet packet);
