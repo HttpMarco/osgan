@@ -1,46 +1,34 @@
 package dev.httpmarco.osgan.networking;
 
-import dev.httpmarco.osgan.files.json.JsonObjectSerializer;
-import dev.httpmarco.osgan.networking.listening.ChannelPacketListener;
-import dev.httpmarco.osgan.networking.request.PacketResponder;
-import dev.httpmarco.osgan.networking.request.RequestHandler;
 import dev.httpmarco.osgan.utils.executers.FutureResult;
 import io.netty5.channel.Channel;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.util.concurrent.FutureListener;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-
-@Getter
 @Accessors(fluent = true)
-public abstract class CommunicationComponent<M extends Metadata> {
+public abstract class CommunicationComponent extends CommunicationListener {
 
-    @Setter
+    @Getter(AccessLevel.PROTECTED)
+    @Setter(AccessLevel.PROTECTED)
     private FutureResult<Void> connectionFuture = new FutureResult<>();
-
-    private final M metadata;
+    @Getter(AccessLevel.PROTECTED)
     private final EventLoopGroup bossGroup;
-    private final Map<Class<? extends Packet>, List<ChannelPacketListener<? extends Packet>>> packetListeners = new HashMap<>();
-    private final RequestHandler requestHandler;
+    @Getter(AccessLevel.PROTECTED)
+    private final String hostname;
+    @Getter(AccessLevel.PROTECTED)
+    private final int port;
 
-    public CommunicationComponent(M metadata, int workerThreads) {
-        this.bossGroup = NetworkUtils.createEventLoopGroup(workerThreads);
-        this.metadata = metadata;
-        this.requestHandler = new RequestHandler(this);
+    public CommunicationComponent(int bossGroupThreads, String hostname, int port) {
+        this.bossGroup = CommunicationNetworkUtils.createEventLoopGroup(bossGroupThreads);
+        this.hostname = hostname;
+        this.port = port;
     }
 
-    public abstract <P extends Packet> void sendPacket(P packet);
-
-    public abstract <P extends Packet> void sendPacket(Channel channel, P packet);
-
-    public abstract <P extends Packet> void redirectPacket(String id, P packet);
+    public abstract void initialize();
 
     public FutureListener<? super Channel> handleConnectionRelease() {
         return it -> {
@@ -65,25 +53,4 @@ public abstract class CommunicationComponent<M extends Metadata> {
         bossGroup.shutdownGracefully();
     }
 
-    public void callPacketReceived(ChannelTransmit transmit, Packet packet) {
-        if (this.packetListeners.containsKey(packet.getClass())) {
-            this.packetListeners.get(packet.getClass()).forEach(it -> it.listenWithMapping(transmit, packet));
-        }
-    }
-
-    public <P extends Packet> void listen(Class<P> packetClass, ChannelPacketListener<P> listener) {
-        this.packetListeners.computeIfAbsent(packetClass, it -> new ArrayList<>()).add(listener);
-    }
-
-    public <T extends Packet> void request(String id, Class<T> responsePacket, Consumer<T> consumer) {
-        this.requestHandler.request(id, responsePacket, consumer);
-    }
-
-    public <T extends Packet> void request(String id, JsonObjectSerializer properties, Class<T> responsePacket, Consumer<T> consumer) {
-        this.requestHandler.request(id, properties, responsePacket, consumer);
-    }
-
-    public <T extends Packet> void registerResponder(String id, PacketResponder<T> responder) {
-        this.requestHandler.registerResponder(id, responder);
-    }
 }

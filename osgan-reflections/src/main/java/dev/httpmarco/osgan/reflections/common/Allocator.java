@@ -1,10 +1,10 @@
-package dev.httpmarco.osgan.reflections;
+package dev.httpmarco.osgan.reflections.common;
 
 import sun.misc.Unsafe;
 
 import java.lang.reflect.InvocationTargetException;
 
-final class Allocator {
+public final class Allocator {
 
     private static final Unsafe unsafe;
 

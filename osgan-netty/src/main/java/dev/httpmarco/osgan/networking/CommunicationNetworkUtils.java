@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 @UtilityClass
-public class NetworkUtils {
+public class CommunicationNetworkUtils {
 
     @Contract("_ -> new")
     public static @NotNull MultithreadEventLoopGroup createEventLoopGroup(int threads) {
@@ -31,4 +31,5 @@ public class NetworkUtils {
     public static ServerChannelFactory<? extends ServerChannel> generateChannelFactory() {
         return Epoll.isAvailable() ? EpollServerSocketChannel::new : NioServerSocketChannel::new;
     }
+
 }
