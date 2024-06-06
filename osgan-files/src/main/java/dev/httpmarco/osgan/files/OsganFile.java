@@ -45,6 +45,10 @@ public final class OsganFile {
         }
     }
 
+    public <T> OsganFileDocument<T> asDocument(T defaultValue) {
+        return new OsganFileDocument<>(this, defaultValue);
+    }
+
     @SneakyThrows
     private void mkdirParent(Path path) {
         while (path.getParent() != null) {
