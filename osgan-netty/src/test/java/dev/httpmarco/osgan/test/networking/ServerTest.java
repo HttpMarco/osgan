@@ -1,45 +1,41 @@
 package dev.httpmarco.osgan.test.networking;
 
-import dev.httpmarco.osgan.files.json.JsonUtils;
-import dev.httpmarco.osgan.networking.client.NettyClient;
-import dev.httpmarco.osgan.networking.server.NettyServer;
+import dev.httpmarco.osgan.networking.CommunicationProperty;
+import dev.httpmarco.osgan.networking.client.CommunicationClient;
+import dev.httpmarco.osgan.networking.server.CommunicationServer;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public class ServerTest {
 
     @Test
-    public void handle() throws InterruptedException {
-       // System.out.println(JsonUtils.fromJson(JsonUtils.toJson(new AuthPacket()), AuthPacket.class));
+    @SneakyThrows
+    public void handle() {
 
-      //
+        var server = new CommunicationServer("127.0.0.1", 8080);
+        var client = new CommunicationClient("127.0.0.1", 8080);
 
-        var client = NettyClient.builder()
-                .withHostname("127.0.0.1")
-                .withConnectTimeout(500)
-                .withReconnect(TimeUnit.SECONDS, 5)
-                .build();
+        server.initialize();
+        client.initialize();
 
+        Thread.sleep(200);
 
-       Thread.sleep(11000);
+        client.sendPacket(new testpacket("test", UUID.randomUUID(), System.currentTimeMillis()));
 
-        var server = NettyServer.builder().build();
+        server.responder("players", property -> {
+            System.out.println(property.getInteger("test"));
+            return new testpacket("polo", UUID.randomUUID(), System.currentTimeMillis());
+        });
 
-        Thread.sleep(11000);
+        client.request("players", new CommunicationProperty().set("test", 200), testpacket.class, testpacket -> {
+            System.out.println("request work");
+        });
 
-     //   client.sendPacket(new AuthPacket());
+        server.channels().get(0).sendPacket(new testpacket("test2", UUID.randomUUID(), System.currentTimeMillis()));
+        server.sendPacket(new testpacket("test3", UUID.randomUUID(), System.currentTimeMillis()));
 
-    //    Thread.sleep(1000);
-
-        server.close();
-
-
-        Thread.sleep(11000);
-
-        server = NettyServer.builder().build();
-
-        Thread.sleep(11000);
+        Thread.currentThread().join();
     }
 }

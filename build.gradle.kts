@@ -10,7 +10,7 @@ allprojects {
     apply(plugin = "maven-publish")
 
     group = "dev.httpmarco"
-    version = "1.1.19-SNAPSHOT"
+    version = "1.2.5-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -22,6 +22,9 @@ allprojects {
 
         implementation(rootProject.libs.annotations)
         annotationProcessor(rootProject.libs.annotations)
+
+        testAnnotationProcessor(rootProject.libs.lombok)
+        testImplementation(rootProject.libs.lombok)
     }
 
     tasks.withType<JavaCompile> {
