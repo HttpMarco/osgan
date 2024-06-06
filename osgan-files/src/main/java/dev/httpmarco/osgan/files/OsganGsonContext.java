@@ -5,6 +5,6 @@ import com.google.gson.GsonBuilder;
 
 public final class OsganGsonContext {
 
-    public static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    public static Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().setExclusionStrategies(new OsganGsonExclusionStrategy()).create();
 
 }

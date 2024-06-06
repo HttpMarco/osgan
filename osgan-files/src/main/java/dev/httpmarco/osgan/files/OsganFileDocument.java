@@ -1,5 +1,7 @@
 package dev.httpmarco.osgan.files;
 
+import com.google.gson.Gson;
+import dev.httpmarco.osgan.utils.data.Pair;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
@@ -10,16 +12,29 @@ import java.nio.file.Files;
 @Accessors(fluent = true)
 public final class OsganFileDocument<T> {
 
+    private final Gson documentGson;
     private final OsganFile osganFile;
-
     private final T defaultValue;
 
     @Getter
     private T content;
 
-    public OsganFileDocument(OsganFile osganFile, T defaultValue) {
+    @SafeVarargs
+    public OsganFileDocument(OsganFile osganFile, T defaultValue, Pair<Class<?>, Object>... typeAdapters) {
         this.osganFile = osganFile;
         this.defaultValue = defaultValue;
+
+        if (typeAdapters.length == 0) {
+            this.documentGson = OsganGsonContext.GSON;
+        } else {
+            var gsonBuilder = OsganGsonContext.GSON.newBuilder().setPrettyPrinting().serializeNulls();
+            for (var adapter : typeAdapters) {
+                gsonBuilder.registerTypeHierarchyAdapter(adapter.getKey(), adapter.getValue());
+                gsonBuilder.registerTypeAdapter(adapter.getKey(), adapter.getValue());
+            }
+            documentGson = gsonBuilder.create();
+        }
+
 
         if (!osganFile.file().exists()) {
             save();
@@ -34,11 +49,11 @@ public final class OsganFileDocument<T> {
     @SneakyThrows
     @SuppressWarnings("unchecked")
     public void update() {
-        this.content = (T) OsganGsonContext.GSON.fromJson(Files.readString(osganFile.path(), StandardCharsets.UTF_8), defaultValue.getClass());
+        this.content = (T) documentGson.fromJson(Files.readString(osganFile.path(), StandardCharsets.UTF_8), defaultValue.getClass());
     }
 
     @SneakyThrows
     public void save() {
-        Files.writeString(osganFile.path(), OsganGsonContext.GSON.toJson(content == null ? defaultValue : content), StandardCharsets.UTF_8);
+        Files.writeString(osganFile.path(), documentGson.toJson(content == null ? defaultValue : content), StandardCharsets.UTF_8);
     }
 }

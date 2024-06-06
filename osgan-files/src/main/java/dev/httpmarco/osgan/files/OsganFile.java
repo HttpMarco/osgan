@@ -1,5 +1,6 @@
 package dev.httpmarco.osgan.files;
 
+import dev.httpmarco.osgan.utils.data.Pair;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -11,6 +12,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,15 +47,19 @@ public final class OsganFile {
         }
     }
 
-    public <T> OsganFileDocument<T> asDocument(T defaultValue) {
-        return new OsganFileDocument<>(this, defaultValue);
+    @SafeVarargs
+    public final <T> OsganFileDocument<T> asDocument(T defaultValue, Pair<Class<?>, Object>... typeAdapters) {
+        return new OsganFileDocument<>(this, defaultValue, typeAdapters);
     }
 
     @SneakyThrows
     private void mkdirParent(Path path) {
         while (path.getParent() != null) {
             path = path.getParent();
-            Files.createDirectory(path);
+
+            if (!Files.exists(path)) {
+                Files.createDirectory(path);
+            }
         }
     }
 
@@ -70,6 +76,17 @@ public final class OsganFile {
             return false;
         }
         return true;
+    }
+
+    public static void create(String path) {
+        create(Path.of(path));
+    }
+
+    @SneakyThrows
+    public static void create(Path path) {
+        if (!Files.exists(path)) {
+            Files.createDirectory(path);
+        }
     }
 
     @Contract(pure = true)
