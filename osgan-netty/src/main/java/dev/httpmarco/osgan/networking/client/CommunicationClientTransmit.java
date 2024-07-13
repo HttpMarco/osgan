@@ -1,12 +1,15 @@
 package dev.httpmarco.osgan.networking.client;
 
 import dev.httpmarco.osgan.networking.CommunicationComponent;
+import dev.httpmarco.osgan.networking.CommunicationProperty;
 import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
 import dev.httpmarco.osgan.networking.packet.Packet;
 import io.netty5.channel.Channel;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class CommunicationClientTransmit extends ChannelTransmit {
 
@@ -27,11 +30,22 @@ public final class CommunicationClientTransmit extends ChannelTransmit {
         communicationComponent.listen(listeningClass, packetCallback);
     }
 
-    public static CommunicationClientTransmit empty(CommunicationComponent communicationComponent) {
+    @Override
+    public void responder(String id, Function<CommunicationProperty, Packet> packetFunction) {
+        this.communicationComponent.responder(id, packetFunction);
+    }
+
+    @Override
+    public <P extends Packet> void request(String id, CommunicationProperty property, Class<P> packet, Consumer<P> packetCallback) {
+        this.communicationComponent.request(id, property, packet, packetCallback);
+    }
+
+    @Contract("_ -> new")
+    public static @NotNull CommunicationClientTransmit empty(CommunicationComponent communicationComponent) {
         return new CommunicationClientTransmit(communicationComponent, null, null);
     }
 
-    public static CommunicationClientTransmit of(CommunicationComponent communicationComponent, ChannelTransmit transmit) {
+    public static @NotNull CommunicationClientTransmit of(CommunicationComponent communicationComponent, @NotNull ChannelTransmit transmit) {
         var clientTransmit = new CommunicationClientTransmit(communicationComponent, transmit.id(), transmit.channel());
         clientTransmit.listeners().putAll(transmit.listeners());
         clientTransmit.requests().putAll(transmit.requests());
