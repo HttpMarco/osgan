@@ -1,6 +1,5 @@
 package dev.httpmarco.osgan.networking;
 
-import dev.httpmarco.osgan.utils.executers.FutureResult;
 import io.netty5.channel.Channel;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.util.concurrent.FutureListener;
@@ -14,7 +13,7 @@ public abstract class CommunicationComponent extends CommunicationListener {
 
     @Getter(AccessLevel.PROTECTED)
     @Setter(AccessLevel.PROTECTED)
-    private FutureResult<Void> connectionFuture = new FutureResult<>();
+    private CommunicationFuture<Void> connectionFuture = new CommunicationFuture<>();
     @Getter(AccessLevel.PROTECTED)
     private final EventLoopGroup bossGroup;
     @Getter(AccessLevel.PROTECTED)
