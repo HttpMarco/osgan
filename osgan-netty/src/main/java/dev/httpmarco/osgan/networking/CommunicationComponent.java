@@ -52,5 +52,4 @@ public abstract class CommunicationComponent extends CommunicationListener {
     public void close() {
         bossGroup.shutdownGracefully();
     }
-
 }

@@ -2,6 +2,7 @@ package dev.httpmarco.osgan.test.networking;
 
 import dev.httpmarco.osgan.networking.CommunicationProperty;
 import dev.httpmarco.osgan.networking.client.CommunicationClient;
+import dev.httpmarco.osgan.networking.client.CommunicationClientAction;
 import dev.httpmarco.osgan.networking.server.CommunicationServer;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -15,14 +16,30 @@ public class ServerTest {
     public void handle() {
 
         var server = new CommunicationServer("127.0.0.1", 8080);
+
         var client = new CommunicationClient("127.0.0.1", 8080);
+
+
+        client.clientAction(CommunicationClientAction.CONNECTED, () -> {
+            System.out.println("client action - CONNECTED");
+        });
+        client.clientAction(CommunicationClientAction.DISCONNECTED, () -> {
+            System.out.println("client action - DISCONNECTED");
+        });
+        client.clientAction(CommunicationClientAction.CLIENT_DISCONNECT, () -> {
+            System.out.println("client action - CLIENT_DISCONNECT");
+        });
+        client.clientAction(CommunicationClientAction.FAILED, () -> {
+            System.out.println("client action - FAILED");
+        });
+
 
         server.initialize();
         client.initialize();
 
+
         Thread.sleep(200);
 
-        client.sendPacket(new testpacket("test", UUID.randomUUID(), System.currentTimeMillis()));
 
         server.responder("players", property -> {
             System.out.println(property.getInteger("test"));
@@ -33,9 +50,15 @@ public class ServerTest {
             System.out.println("request work");
         });
 
-        server.channels().get(0).sendPacket(new testpacket("test2", UUID.randomUUID(), System.currentTimeMillis()));
-        server.sendPacket(new testpacket("test3", UUID.randomUUID(), System.currentTimeMillis()));
+        // server.channels().get(0).sendPacket(new testpacket("test2", UUID.randomUUID(), System.currentTimeMillis()));
+        //server.sendPacket(new testpacket("test3", UUID.randomUUID(), System.currentTimeMillis()));
 
-        Thread.currentThread().join();
+        Thread.sleep(2000);
+
+        client.close();
+        server.close();
+
+        Thread.sleep(2000);
+
     }
 }

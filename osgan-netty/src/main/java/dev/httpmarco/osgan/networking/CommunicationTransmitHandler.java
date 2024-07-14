@@ -4,6 +4,7 @@ import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
 import dev.httpmarco.osgan.networking.packet.Packet;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.channel.ChannelShutdownDirection;
 import io.netty5.channel.SimpleChannelInboundHandler;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -18,21 +19,22 @@ public final class CommunicationTransmitHandler extends SimpleChannelInboundHand
 
     private final Function<Channel, List<ChannelTransmit>> findTransmitFunction;
     private final BiConsumer<Packet, ChannelTransmit> channelTransmitPacketConsumer;
-    private final Consumer<ChannelTransmit> channelTransmitConsumer;
+    private final Consumer<ChannelTransmit> channelActvieConsumer;
+    private final Consumer<ChannelTransmit> channelInactiveConsumer;
 
     @Override
-    protected void messageReceived(ChannelHandlerContext channelHandlerContext, Packet packet) {
+    protected void messageReceived(@NotNull ChannelHandlerContext channelHandlerContext, Packet packet) {
         channelTransmitPacketConsumer.accept(packet, findTransmitFunction.apply(channelHandlerContext.channel()).stream().filter(it -> it.channel().equals(channelHandlerContext.channel())).findFirst().orElseThrow());
     }
 
     @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) {
-        this.channelTransmitConsumer.accept(new ChannelTransmit(ctx.channel().id().asLongText(), ctx.channel()));
+        this.channelActvieConsumer.accept(new ChannelTransmit(ctx.channel().id().asLongText(), ctx.channel()));
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-
+    public void channelInactive(@NotNull ChannelHandlerContext ctx) {
+        this.channelInactiveConsumer.accept(new ChannelTransmit(ctx.channel().id().asLongText(), ctx.channel()));
     }
 
     @Override
