@@ -31,7 +31,12 @@ public final class CommunicationServer extends CommunicationComponent {
         var bootstrap = new ServerBootstrap()
                 .group(bossGroup(), workerGroup)
                 .channelFactory(CommunicationNetworkUtils.generateChannelFactory())
-                .childHandler(new ChannelInitializer(new CommunicationTransmitHandler(it -> this.channels, (it, channel) -> channel.call(it, channel), channelTransmit -> channels.add(CommunicationServerTransmit.of(channelTransmit, this)))))
+                .childHandler(new ChannelInitializer(new CommunicationTransmitHandler(
+                        (it) -> this.channels,
+                        (it, channel) -> channel.call(it, channel),
+                        (it) -> channels.add(CommunicationServerTransmit.of(it, this)),
+                        (it) -> channels.removeIf(channel -> channel.channel().equals(it.channel()))
+                )))
 
                 // all channel options
                 .childOption(ChannelOption.TCP_NODELAY, true)
@@ -44,6 +49,12 @@ public final class CommunicationServer extends CommunicationComponent {
                         throw new RuntimeException(future.cause());
                     }
                 });
+    }
+
+    @Override
+    public void close() {
+        workerGroup.shutdownGracefully();
+        super.close();
     }
 
     @Override
