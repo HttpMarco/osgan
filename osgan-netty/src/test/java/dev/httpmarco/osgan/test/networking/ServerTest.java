@@ -17,19 +17,19 @@ public class ServerTest {
 
         var server = new CommunicationServer("127.0.0.1", 8080);
 
-        var client = new CommunicationClient("127.0.0.1", 8080);
+        var client = new CommunicationClient("127.0.0.1", 8081);
 
 
-        client.clientAction(CommunicationClientAction.CONNECTED, () -> {
+        client.clientAction(CommunicationClientAction.CONNECTED, (it) -> {
             System.out.println("client action - CONNECTED");
         });
-        client.clientAction(CommunicationClientAction.DISCONNECTED, () -> {
+        client.clientAction(CommunicationClientAction.DISCONNECTED, (it) -> {
             System.out.println("client action - DISCONNECTED");
         });
-        client.clientAction(CommunicationClientAction.CLIENT_DISCONNECT, () -> {
+        client.clientAction(CommunicationClientAction.CLIENT_DISCONNECT, (it) -> {
             System.out.println("client action - CLIENT_DISCONNECT");
         });
-        client.clientAction(CommunicationClientAction.FAILED, () -> {
+        client.clientAction(CommunicationClientAction.FAILED, (it) -> {
             System.out.println("client action - FAILED");
         });
 

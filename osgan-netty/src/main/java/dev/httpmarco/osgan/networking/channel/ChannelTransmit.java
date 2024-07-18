@@ -17,6 +17,10 @@ public class ChannelTransmit extends CommunicationListener {
 
     @Override
     public void sendPacket(Packet packet) {
+        if(channel == null) {
+            System.err.println("Write packet " + packet.getClass().getSimpleName() + " on channel " + id);
+            return;
+        }
         this.channel.writeAndFlush(packet);
     }
 }
