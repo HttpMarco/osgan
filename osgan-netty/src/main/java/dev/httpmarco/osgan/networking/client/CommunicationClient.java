@@ -16,13 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public final class CommunicationClient extends CommunicationComponent {
+public final class CommunicationClient extends CommunicationComponent<CommunicationClientAction> {
 
     private final Bootstrap bootstrap;
     private CommunicationClientTransmit channelTransmit;
-
-    // only custom client events
-    private final Map<CommunicationClientAction, List<Consumer<ChannelTransmit>>> localClientActions = new HashMap<>();
 
     public CommunicationClient(String hostname, int port) {
         super(0, hostname, port);
@@ -76,18 +73,4 @@ public final class CommunicationClient extends CommunicationComponent {
         this.channelTransmit.sendPacket(packet);
     }
 
-    public CommunicationClient clientAction(CommunicationClientAction action, Consumer<ChannelTransmit> runnable) {
-        var currentActionCollection = this.localClientActions.getOrDefault(action, new ArrayList<>());
-        currentActionCollection.add(runnable);
-        this.localClientActions.put(action, currentActionCollection);
-        return this;
-    }
-
-    private void callClientAction(CommunicationClientAction action) {
-        if (this.localClientActions.containsKey(action)) {
-            for (var runnable : this.localClientActions.get(action)) {
-                runnable.accept(this.channelTransmit);
-            }
-        }
-    }
 }

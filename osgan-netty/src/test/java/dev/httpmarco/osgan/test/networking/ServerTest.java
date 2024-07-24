@@ -4,6 +4,7 @@ import dev.httpmarco.osgan.networking.CommunicationProperty;
 import dev.httpmarco.osgan.networking.client.CommunicationClient;
 import dev.httpmarco.osgan.networking.client.CommunicationClientAction;
 import dev.httpmarco.osgan.networking.server.CommunicationServer;
+import dev.httpmarco.osgan.networking.server.CommunicationServerAction;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,7 @@ public class ServerTest {
 
         var server = new CommunicationServer("127.0.0.1", 8080);
 
-        var client = new CommunicationClient("127.0.0.1", 8081);
+        var client = new CommunicationClient("127.0.0.1", 8080);
 
 
         client.clientAction(CommunicationClientAction.CONNECTED, (it) -> {
@@ -33,6 +34,14 @@ public class ServerTest {
             System.out.println("client action - FAILED");
         });
 
+
+        server.clientAction(CommunicationServerAction.CLIENT_CONNECT, transmit -> {
+            System.out.println("connected");
+        });
+
+        server.clientAction(CommunicationServerAction.CLIENT_DISCONNECT, transmit -> {
+            System.out.println("disconnected");
+        });
 
         server.initialize();
         client.initialize();

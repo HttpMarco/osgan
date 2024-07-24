@@ -14,9 +14,9 @@ import java.util.function.Function;
 
 public final class CommunicationClientTransmit extends ChannelTransmit {
 
-    private final CommunicationComponent communicationComponent;
+    private final CommunicationComponent<?> communicationComponent;
 
-    public CommunicationClientTransmit(CommunicationComponent communicationComponent, String id, Channel channel) {
+    public CommunicationClientTransmit(CommunicationComponent<?> communicationComponent, String id, Channel channel) {
         super(id, channel);
         this.communicationComponent = communicationComponent;
     }
@@ -42,11 +42,11 @@ public final class CommunicationClientTransmit extends ChannelTransmit {
     }
 
     @Contract("_ -> new")
-    public static @NotNull CommunicationClientTransmit empty(CommunicationComponent communicationComponent) {
+    public static @NotNull CommunicationClientTransmit empty(CommunicationComponent<?> communicationComponent) {
         return new CommunicationClientTransmit(communicationComponent, null, null);
     }
 
-    public static @NotNull CommunicationClientTransmit of(CommunicationComponent communicationComponent, @NotNull ChannelTransmit transmit) {
+    public static @NotNull CommunicationClientTransmit of(CommunicationComponent<?> communicationComponent, @NotNull ChannelTransmit transmit) {
         var clientTransmit = new CommunicationClientTransmit(communicationComponent, transmit.id(), transmit.channel());
         clientTransmit.listeners().putAll(transmit.listeners());
         clientTransmit.requests().putAll(transmit.requests());

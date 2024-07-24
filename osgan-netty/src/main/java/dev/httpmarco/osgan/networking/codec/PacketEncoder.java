@@ -2,17 +2,12 @@ package dev.httpmarco.osgan.networking.codec;
 
 import dev.httpmarco.osgan.networking.packet.Packet;
 import dev.httpmarco.osgan.networking.packet.PacketBuffer;
-import dev.httpmarco.osgan.reflections.Reflections;
 import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.MessageToByteEncoder;
 import lombok.SneakyThrows;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class PacketEncoder extends MessageToByteEncoder<Packet> {
 
