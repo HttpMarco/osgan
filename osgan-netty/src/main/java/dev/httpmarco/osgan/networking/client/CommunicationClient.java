@@ -73,4 +73,8 @@ public final class CommunicationClient extends CommunicationComponent<Communicat
         this.channelTransmit.sendPacket(packet);
     }
 
+    @Override
+    protected void callClientAction(CommunicationClientAction action) {
+        this.callClientAction(action, channelTransmit);
+    }
 }
