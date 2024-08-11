@@ -5,19 +5,14 @@ import dev.httpmarco.osgan.networking.CommunicationNetworkUtils;
 import dev.httpmarco.osgan.networking.CommunicationTransmitHandler;
 import dev.httpmarco.osgan.networking.channel.ChannelInitializer;
 import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
-import dev.httpmarco.osgan.networking.client.CommunicationClientAction;
 import dev.httpmarco.osgan.networking.packet.Packet;
 import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
 @Accessors(fluent = true)
 public final class CommunicationServer extends CommunicationComponent<CommunicationServerAction> {

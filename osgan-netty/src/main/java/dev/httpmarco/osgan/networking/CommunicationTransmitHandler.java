@@ -24,7 +24,7 @@ public final class CommunicationTransmitHandler extends SimpleChannelInboundHand
 
     @Override
     protected void messageReceived(@NotNull ChannelHandlerContext channelHandlerContext, Packet packet) {
-        channelTransmitPacketConsumer.accept(packet, findTransmitFunction.apply(channelHandlerContext.channel()).stream().filter(it -> it.channel().equals(channelHandlerContext.channel())).findFirst().orElseThrow());
+        channelTransmitPacketConsumer.accept(packet, findTransmitFunction.apply(channelHandlerContext.channel()).stream().filter(it -> it.channel().equals(channelHandlerContext.channel())).findFirst().orElse(null));
     }
 
     @Override
