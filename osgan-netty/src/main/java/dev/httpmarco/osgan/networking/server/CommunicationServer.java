@@ -34,8 +34,8 @@ public final class CommunicationServer extends CommunicationComponent<Communicat
                         (it) -> this.channels,
                         (it, channel) -> channel.call(it, channel),
                         (it) -> {
-                            callClientAction(CommunicationServerAction.CLIENT_CONNECT, it);
                             channels.add(CommunicationServerTransmit.of(it, this));
+                            callClientAction(CommunicationServerAction.CLIENT_CONNECT, it);
                         },
                         (it) -> {
                             callClientAction(CommunicationServerAction.CLIENT_DISCONNECT, it);
