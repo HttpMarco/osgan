@@ -1,17 +1,11 @@
 package dev.httpmarco.osgan.networking.codec;
 
 import dev.httpmarco.osgan.networking.packet.Packet;
+import dev.httpmarco.osgan.networking.packet.PacketAllocator;
 import dev.httpmarco.osgan.networking.packet.PacketBuffer;
-import dev.httpmarco.osgan.reflections.Reflections;
-import dev.httpmarco.osgan.reflections.common.Allocator;
 import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.ByteToMessageDecoder;
-import lombok.SneakyThrows;
-
-import java.lang.reflect.Modifier;
-import java.sql.Ref;
-import java.util.UUID;
 
 public class PacketDecoder extends ByteToMessageDecoder {
     @Override
@@ -25,7 +19,7 @@ public class PacketDecoder extends ByteToMessageDecoder {
             var content = new PacketBuffer(in.copy(in.readerOffset(), readableBytes, true));
             in.skipReadableBytes(readableBytes);
 
-            var packet = (Packet) Allocator.allocate(Class.forName(className));
+            var packet = (Packet) PacketAllocator.allocate(Class.forName(className));
 
             packet.read(content);
 

@@ -11,12 +11,11 @@ import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Accessors(fluent = true)
-public final class CommunicationServer extends CommunicationComponent {
+public final class CommunicationServer extends CommunicationComponent<CommunicationServerAction> {
 
     @Getter
     private final List<ChannelTransmit> channels = new ArrayList<>();
@@ -31,7 +30,18 @@ public final class CommunicationServer extends CommunicationComponent {
         var bootstrap = new ServerBootstrap()
                 .group(bossGroup(), workerGroup)
                 .channelFactory(CommunicationNetworkUtils.generateChannelFactory())
-                .childHandler(new ChannelInitializer(new CommunicationTransmitHandler(it -> this.channels, (it, channel) -> channel.call(it, channel), channelTransmit -> channels.add(CommunicationServerTransmit.of(channelTransmit, this)))))
+                .childHandler(new ChannelInitializer(new CommunicationTransmitHandler(
+                        (it) -> this.channels,
+                        (it, channel) -> channel.call(it, channel),
+                        (it) -> {
+                            channels.add(CommunicationServerTransmit.of(it, this));
+                            callClientAction(CommunicationServerAction.CLIENT_CONNECT, it);
+                        },
+                        (it) -> {
+                            callClientAction(CommunicationServerAction.CLIENT_DISCONNECT, it);
+                            channels.removeIf(channel -> channel.channel().equals(it.channel()));
+                        }
+                )))
 
                 // all channel options
                 .childOption(ChannelOption.TCP_NODELAY, true)
@@ -44,6 +54,12 @@ public final class CommunicationServer extends CommunicationComponent {
                         throw new RuntimeException(future.cause());
                     }
                 });
+    }
+
+    @Override
+    public void close() {
+        workerGroup.shutdownGracefully();
+        super.close();
     }
 
     @Override

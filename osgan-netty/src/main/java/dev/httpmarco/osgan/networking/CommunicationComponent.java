@@ -1,6 +1,6 @@
 package dev.httpmarco.osgan.networking;
 
-import dev.httpmarco.osgan.utils.executers.FutureResult;
+import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
 import io.netty5.channel.Channel;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.util.concurrent.FutureListener;
@@ -8,19 +8,27 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 @Accessors(fluent = true)
-public abstract class CommunicationComponent extends CommunicationListener {
+public abstract class CommunicationComponent<E extends Enum<?>> extends CommunicationListener {
 
     @Getter(AccessLevel.PROTECTED)
     @Setter(AccessLevel.PROTECTED)
-    private FutureResult<Void> connectionFuture = new FutureResult<>();
+    private CommunicationFuture<Void> connectionFuture = new CommunicationFuture<>();
     @Getter(AccessLevel.PROTECTED)
     private final EventLoopGroup bossGroup;
     @Getter(AccessLevel.PROTECTED)
     private final String hostname;
     @Getter(AccessLevel.PROTECTED)
     private final int port;
+    private final Map<E, List<Consumer<ChannelTransmit>>> localActions = new HashMap<>();
 
     public CommunicationComponent(int bossGroupThreads, String hostname, int port) {
         this.bossGroup = CommunicationNetworkUtils.createEventLoopGroup(bossGroupThreads);
@@ -53,4 +61,22 @@ public abstract class CommunicationComponent extends CommunicationListener {
         bossGroup.shutdownGracefully();
     }
 
+
+    public void clientAction(E action, Consumer<ChannelTransmit> runnable) {
+        var currentActionCollection = this.localActions.getOrDefault(action, new ArrayList<>());
+        currentActionCollection.add(runnable);
+        this.localActions.put(action, currentActionCollection);
+    }
+
+    protected void callClientAction(E action, @Nullable ChannelTransmit transmit) {
+        if (this.localActions.containsKey(action)) {
+            for (var runnable : localActions.get(action)) {
+                runnable.accept(transmit);
+            }
+        }
+    }
+
+    protected void callClientAction(E action) {
+        this.callClientAction(action, null);
+    }
 }

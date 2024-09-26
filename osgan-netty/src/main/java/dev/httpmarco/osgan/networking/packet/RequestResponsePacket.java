@@ -1,6 +1,5 @@
 package dev.httpmarco.osgan.networking.packet;
 
-import dev.httpmarco.osgan.reflections.common.Allocator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -21,7 +20,7 @@ public class RequestResponsePacket extends Packet {
     public void read(PacketBuffer buffer) {
         this.uuid = buffer.readUniqueId();
 
-        this.response = (Packet) Allocator.allocate(Class.forName(buffer.readString()));
+        this.response = (Packet) PacketAllocator.allocate(Class.forName(buffer.readString()));
         this.response.read(buffer);
     }
 
