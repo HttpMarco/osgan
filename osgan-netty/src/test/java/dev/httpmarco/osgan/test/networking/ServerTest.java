@@ -55,9 +55,9 @@ public class ServerTest {
             return new testpacket("polo", UUID.randomUUID(), System.currentTimeMillis());
         });
 
-        client.request("players", new CommunicationProperty().set("test", 200), testpacket.class, testpacket -> {
-            System.out.println("request work");
-        });
+        testpacket request = client.request("players", testpacket.class, new CommunicationProperty().set("test", 200));
+
+        System.out.println(request);
 
         // server.channels().get(0).sendPacket(new testpacket("test2", UUID.randomUUID(), System.currentTimeMillis()));
         //server.sendPacket(new testpacket("test3", UUID.randomUUID(), System.currentTimeMillis()));

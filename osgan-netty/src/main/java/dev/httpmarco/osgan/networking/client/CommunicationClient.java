@@ -36,6 +36,7 @@ public final class CommunicationClient extends CommunicationComponent<Communicat
                 .group(bossGroup())
                 .channelFactory(CommunicationNetworkUtils::createChannelFactory)
                 .handler(new ChannelInitializer(new CommunicationTransmitHandler(
+                        this,
                         (it) -> List.of(channelTransmit),
                         (it, channel) -> this.channelTransmit.call(it, channel),
                         (it) -> {

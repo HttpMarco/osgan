@@ -37,8 +37,23 @@ public final class CommunicationClientTransmit extends ChannelTransmit {
     }
 
     @Override
-    public <P extends Packet> void request(String id, CommunicationProperty property, Class<P> packet, Consumer<P> packetCallback) {
-        this.communicationComponent.request(id, property, packet, packetCallback);
+    public <P extends Packet> CompletableFuture<P> requestAsync(String id, Class<P> packet) {
+        return this.communicationComponent.requestAsync(id, packet);
+    }
+
+    @Override
+    public <P extends Packet> CompletableFuture<P> requestAsync(String id, Class<P> packet, CommunicationProperty property) {
+        return this.communicationComponent.requestAsync(id, packet, property);
+    }
+
+    @Override
+    public <P extends Packet> P request(String id, Class<P> packet) {
+        return this.communicationComponent.request(id, packet);
+    }
+
+    @Override
+    public <P extends Packet> P request(String id, Class<P> packet, CommunicationProperty property) {
+        return this.communicationComponent.request(id, packet, property);
     }
 
     @Contract("_ -> new")

@@ -31,6 +31,7 @@ public final class CommunicationServer extends CommunicationComponent<Communicat
                 .group(bossGroup(), workerGroup)
                 .channelFactory(CommunicationNetworkUtils.generateChannelFactory())
                 .childHandler(new ChannelInitializer(new CommunicationTransmitHandler(
+                        this,
                         (it) -> this.channels,
                         (it, channel) -> channel.call(it, channel),
                         (it) -> {

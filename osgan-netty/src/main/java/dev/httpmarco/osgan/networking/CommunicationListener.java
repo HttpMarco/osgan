@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -20,7 +21,9 @@ public abstract class CommunicationListener {
 
     private final Map<Class<? extends Packet>, List<BiConsumer<ChannelTransmit, Packet>>> listeners = new HashMap<>();
     private final Map<String, Function<CommunicationProperty, Packet>> responders = new HashMap<>();
-    private final Map<UUID, Consumer<Packet>> requests = new HashMap<>();
+
+    @Deprecated
+    private final Map<UUID, CommunicationFuture<? extends Packet>> requests = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public <P extends Packet> void listen(Class<P> listeningClass, BiConsumer<ChannelTransmit, P> packetCallback) {
@@ -33,15 +36,27 @@ public abstract class CommunicationListener {
         this.listen(listeningClass, (channelTransmit, packet) -> packetCallback.accept(packet));
     }
 
-    @SuppressWarnings("unchecked")
-    public <P extends Packet> void request(String id, CommunicationProperty property, Class<P> packet, Consumer<P> packetCallback) {
+
+    public <P extends Packet> CompletableFuture<P> requestAsync(String id, Class<P> packet, CommunicationProperty property) {
+        var future = new CommunicationFuture<P>();
+
         var uuid = UUID.randomUUID();
-        this.requests.put(uuid, (Consumer<Packet>) packetCallback);
+        this.requests.put(uuid, future);
         sendPacket(new RequestPacket(id, uuid, property));
+
+        return future;
     }
 
-    public <P extends Packet> void request(String id, Class<P> packet, Consumer<P> packetCallback) {
-        request(id, new CommunicationProperty(), packet, packetCallback);
+    public <P extends Packet> CompletableFuture<P> requestAsync(String id, Class<P> packet) {
+        return this.requestAsync(id, packet, new CommunicationProperty());
+    }
+
+    public <P extends Packet> P request(String id, Class<P> packet, CommunicationProperty property) {
+        return this.requestAsync(id, packet, property).join();
+    }
+
+    public <P extends Packet> P request(String id, Class<P> packet) {
+        return this.request(id, packet, new CommunicationProperty());
     }
 
 
@@ -70,7 +85,7 @@ public abstract class CommunicationListener {
             if (!this.requests.containsKey(requestResponsePacket.uuid())) {
                 return true;
             }
-            this.requests.get(requestResponsePacket.uuid()).accept(requestResponsePacket.response());
+            ((CommunicationFuture<Packet>) this.requests.get(requestResponsePacket.uuid())).complete(requestResponsePacket.response());
             this.requests.remove(requestResponsePacket.uuid());
             return true;
         }
