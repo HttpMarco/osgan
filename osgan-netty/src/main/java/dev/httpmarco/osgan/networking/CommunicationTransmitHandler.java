@@ -1,6 +1,7 @@
 package dev.httpmarco.osgan.networking;
 
 import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
+import dev.httpmarco.osgan.networking.client.CommunicationClient;
 import dev.httpmarco.osgan.networking.packet.Packet;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelHandlerContext;
@@ -20,6 +21,7 @@ public final class CommunicationTransmitHandler extends SimpleChannelInboundHand
 
     private static final Executor PACKET_THREAD_EXECUTOR = Executors.newCachedThreadPool();
 
+    private final CommunicationComponent<?> communicationComponent;
     private final Function<Channel, List<ChannelTransmit>> findTransmitFunction;
     private final BiConsumer<Packet, ChannelTransmit> channelTransmitPacketConsumer;
     private final Consumer<ChannelTransmit> channelActvieConsumer;
@@ -27,7 +29,12 @@ public final class CommunicationTransmitHandler extends SimpleChannelInboundHand
 
     @Override
     protected void messageReceived(@NotNull ChannelHandlerContext channelHandlerContext, Packet packet) {
-        PACKET_THREAD_EXECUTOR.execute(() -> channelTransmitPacketConsumer.accept(packet, findTransmitFunction.apply(channelHandlerContext.channel()).stream().filter(it -> it.channel().equals(channelHandlerContext.channel())).findFirst().orElse(null)));
+        var channelTransmit = findTransmitFunction.apply(channelHandlerContext.channel()).stream().filter(it -> it.channel().equals(channelHandlerContext.channel())).findFirst().orElse(null);
+
+        // alert security issue
+        if (communicationComponent.preHandlingPackets().isEmpty() || communicationComponent.preHandlingPackets().stream().allMatch(communicationPreHandling -> communicationPreHandling.allowAccess(channelTransmit, packet))) {
+            PACKET_THREAD_EXECUTOR.execute(() -> channelTransmitPacketConsumer.accept(packet, channelTransmit));
+        }
     }
 
     @Override
