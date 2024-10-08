@@ -34,6 +34,8 @@ public final class CommunicationTransmitHandler extends SimpleChannelInboundHand
         // alert security issue
         if (communicationComponent.preHandlingPackets().isEmpty() || communicationComponent.preHandlingPackets().stream().allMatch(communicationPreHandling -> communicationPreHandling.allowAccess(channelTransmit, packet))) {
             PACKET_THREAD_EXECUTOR.execute(() -> channelTransmitPacketConsumer.accept(packet, channelTransmit));
+        } else {
+           channelHandlerContext.channel().close();
         }
     }
 
