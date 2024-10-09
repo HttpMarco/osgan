@@ -1,8 +1,10 @@
 package dev.httpmarco.osgan.test.networking;
 
 import dev.httpmarco.osgan.networking.CommunicationProperty;
+import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
 import dev.httpmarco.osgan.networking.client.CommunicationClient;
 import dev.httpmarco.osgan.networking.client.CommunicationClientAction;
+import dev.httpmarco.osgan.networking.security.SecurityController;
 import dev.httpmarco.osgan.networking.server.CommunicationServer;
 import dev.httpmarco.osgan.networking.server.CommunicationServerAction;
 import lombok.SneakyThrows;
@@ -17,6 +19,8 @@ public class ServerTest {
     public void handle() {
 
         var server = new CommunicationServer("127.0.0.1", 8080);
+
+
 
         var client = new CommunicationClient("127.0.0.1", 8080);
 

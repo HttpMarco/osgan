@@ -16,8 +16,8 @@ public final class CommunicationClientTransmit extends ChannelTransmit {
 
     private final CommunicationComponent<?> communicationComponent;
 
-    public CommunicationClientTransmit(CommunicationComponent<?> communicationComponent, String id, Channel channel) {
-        super(id, channel);
+    public CommunicationClientTransmit(CommunicationComponent<?> communicationComponent, Channel channel) {
+        super(channel);
         this.communicationComponent = communicationComponent;
     }
 
@@ -58,11 +58,11 @@ public final class CommunicationClientTransmit extends ChannelTransmit {
 
     @Contract("_ -> new")
     public static @NotNull CommunicationClientTransmit empty(CommunicationComponent<?> communicationComponent) {
-        return new CommunicationClientTransmit(communicationComponent, null, null);
+        return new CommunicationClientTransmit(communicationComponent, null);
     }
 
     public static @NotNull CommunicationClientTransmit of(CommunicationComponent<?> communicationComponent, @NotNull ChannelTransmit transmit) {
-        var clientTransmit = new CommunicationClientTransmit(communicationComponent, transmit.id(), transmit.channel());
+        var clientTransmit = new CommunicationClientTransmit(communicationComponent, transmit.channel());
         clientTransmit.listeners().putAll(transmit.listeners());
         clientTransmit.requests().putAll(transmit.requests());
         clientTransmit.responders().putAll(transmit.responders());

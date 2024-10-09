@@ -6,11 +6,15 @@ import dev.httpmarco.osgan.networking.CommunicationTransmitHandler;
 import dev.httpmarco.osgan.networking.channel.ChannelInitializer;
 import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
 import dev.httpmarco.osgan.networking.packet.Packet;
+import dev.httpmarco.osgan.networking.security.SecurityController;
 import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +25,10 @@ public final class CommunicationServer extends CommunicationComponent<Communicat
     private final List<ChannelTransmit> channels = new ArrayList<>();
     private final EventLoopGroup workerGroup = CommunicationNetworkUtils.createEventLoopGroup(0);
 
+    @Nullable
+    @Getter(AccessLevel.PROTECTED)
+    private SecurityController securityController;
+
     public CommunicationServer(String hostname, int port) {
         super(1, hostname, port);
     }
@@ -30,7 +38,7 @@ public final class CommunicationServer extends CommunicationComponent<Communicat
         var bootstrap = new ServerBootstrap()
                 .group(bossGroup(), workerGroup)
                 .channelFactory(CommunicationNetworkUtils.generateChannelFactory())
-                .childHandler(new ChannelInitializer(new CommunicationTransmitHandler(
+                .childHandler(new CommunicationServerChannelInitializer(this, new CommunicationTransmitHandler(
                         this,
                         (it) -> this.channels,
                         (it, channel) -> channel.call(it, channel),
@@ -55,6 +63,11 @@ public final class CommunicationServer extends CommunicationComponent<Communicat
                         throw new RuntimeException(future.cause());
                     }
                 });
+    }
+
+    public CommunicationServer useSecurityRules(SecurityController securityController) {
+        this.securityController = securityController;
+        return this;
     }
 
     @Override

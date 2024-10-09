@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
@@ -30,23 +31,17 @@ public final class CommunicationTransmitHandler extends SimpleChannelInboundHand
     @Override
     protected void messageReceived(@NotNull ChannelHandlerContext channelHandlerContext, Packet packet) {
         var channelTransmit = findTransmitFunction.apply(channelHandlerContext.channel()).stream().filter(it -> it.channel().equals(channelHandlerContext.channel())).findFirst().orElse(null);
-
-        // alert security issue
-        if (communicationComponent.preHandlingPackets().isEmpty() || communicationComponent.preHandlingPackets().stream().allMatch(communicationPreHandling -> communicationPreHandling.allowAccess(channelTransmit, packet))) {
-            PACKET_THREAD_EXECUTOR.execute(() -> channelTransmitPacketConsumer.accept(packet, channelTransmit));
-        } else {
-           channelHandlerContext.channel().close();
-        }
+        PACKET_THREAD_EXECUTOR.execute(() -> channelTransmitPacketConsumer.accept(packet, channelTransmit));
     }
 
     @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) {
-        this.channelActvieConsumer.accept(new ChannelTransmit(ctx.channel().id().asLongText(), ctx.channel()));
+        this.channelActvieConsumer.accept(new ChannelTransmit(ctx.channel()));
     }
 
     @Override
     public void channelInactive(@NotNull ChannelHandlerContext ctx) {
-        this.channelInactiveConsumer.accept(new ChannelTransmit(ctx.channel().id().asLongText(), ctx.channel()));
+        this.channelInactiveConsumer.accept(new ChannelTransmit(ctx.channel()));
     }
 
     @Override

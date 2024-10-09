@@ -9,10 +9,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class CommunicationServerTransmit extends ChannelTransmit {
 
-    private final CommunicationComponent communicationComponent;
+    private final CommunicationComponent<CommunicationServerAction> communicationComponent;
 
-    public CommunicationServerTransmit(String id, Channel channel, CommunicationComponent communicationComponent) {
-        super(id, channel);
+    public CommunicationServerTransmit(Channel channel, CommunicationComponent<CommunicationServerAction> communicationComponent) {
+        super(channel);
         this.communicationComponent = communicationComponent;
     }
 
@@ -29,8 +29,8 @@ public class CommunicationServerTransmit extends ChannelTransmit {
         return true;
     }
 
-    public static CommunicationServerTransmit of(ChannelTransmit channelTransmit, CommunicationComponent communicationComponent) {
-        var transmit = new CommunicationServerTransmit(channelTransmit.id(), channelTransmit.channel(), communicationComponent);
+    public static CommunicationServerTransmit of(ChannelTransmit channelTransmit, CommunicationComponent<CommunicationServerAction> communicationComponent) {
+        var transmit = new CommunicationServerTransmit(channelTransmit.channel(), communicationComponent);
 
         transmit.listeners().putAll(transmit.listeners());
         transmit.requests().putAll(transmit.requests());

@@ -2,6 +2,7 @@ package dev.httpmarco.osgan.networking;
 
 import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
 import dev.httpmarco.osgan.networking.packet.Packet;
+import dev.httpmarco.osgan.networking.security.SecurityController;
 import io.netty5.channel.Channel;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.util.concurrent.FutureListener;
@@ -31,10 +32,6 @@ public abstract class CommunicationComponent<E extends Enum<?>> extends Communic
     @Getter(AccessLevel.PROTECTED)
     private final int port;
     private final Map<E, List<Consumer<ChannelTransmit>>> localActions = new HashMap<>();
-
-    // all security actions are handled here
-    @Getter(AccessLevel.PROTECTED)
-    private final List<CommunicationPreHandling> preHandlingPackets = new ArrayList<>();
 
     public CommunicationComponent(int bossGroupThreads, String hostname, int port) {
         this.bossGroup = CommunicationNetworkUtils.createEventLoopGroup(bossGroupThreads);
@@ -80,10 +77,6 @@ public abstract class CommunicationComponent<E extends Enum<?>> extends Communic
                 runnable.accept(transmit);
             }
         }
-    }
-
-    public void beforePacketHandshake(CommunicationPreHandling communicationPreHandling) {
-        this.preHandlingPackets.add(communicationPreHandling);
     }
 
     protected void callClientAction(E action) {
