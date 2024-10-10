@@ -6,6 +6,7 @@ import dev.httpmarco.osgan.networking.CommunicationTransmitHandler;
 import dev.httpmarco.osgan.networking.channel.ChannelInitializer;
 import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
 import dev.httpmarco.osgan.networking.packet.Packet;
+import dev.httpmarco.osgan.networking.security.SecurityChannelParametrize;
 import io.netty5.bootstrap.Bootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.epoll.Epoll;
@@ -27,6 +28,10 @@ public final class CommunicationClient extends CommunicationComponent<Communicat
     private CommunicationClientTransmit channelTransmit;
 
     public CommunicationClient(String hostname, int port) {
+        this(null, hostname, port);
+    }
+
+    public CommunicationClient(SecurityChannelParametrize securityChannelParametrize, String hostname, int port) {
         super(0, hostname, port);
 
         // default listener transmit
@@ -35,7 +40,7 @@ public final class CommunicationClient extends CommunicationComponent<Communicat
         this.bootstrap = new Bootstrap()
                 .group(bossGroup())
                 .channelFactory(CommunicationNetworkUtils::createChannelFactory)
-                .handler(new ChannelInitializer(new CommunicationTransmitHandler(
+                .handler(new CommunicationClientChannelInitializer(securityChannelParametrize, new CommunicationTransmitHandler(
                         this,
                         (it) -> List.of(channelTransmit),
                         (it, channel) -> this.channelTransmit.call(it, channel),

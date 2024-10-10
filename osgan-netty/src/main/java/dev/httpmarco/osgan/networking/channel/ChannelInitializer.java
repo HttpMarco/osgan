@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 @Setter
 @Accessors(fluent = true)
 @AllArgsConstructor
-public class ChannelInitializer extends io.netty5.channel.ChannelInitializer<Channel> {
+public abstract class ChannelInitializer extends io.netty5.channel.ChannelInitializer<Channel> {
 
     private final CommunicationTransmitHandler transmitHandler;
 
