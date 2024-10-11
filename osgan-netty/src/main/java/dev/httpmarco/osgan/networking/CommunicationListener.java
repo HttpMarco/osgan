@@ -1,10 +1,9 @@
 package dev.httpmarco.osgan.networking;
 
 import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
-import dev.httpmarco.osgan.networking.packet.BadRequestPacket;
-import dev.httpmarco.osgan.networking.packet.Packet;
-import dev.httpmarco.osgan.networking.packet.RequestPacket;
-import dev.httpmarco.osgan.networking.packet.RequestResponsePacket;
+import dev.httpmarco.osgan.networking.packet.*;
+import io.netty5.channel.Channel;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +21,10 @@ public abstract class CommunicationListener {
     private final Map<Class<? extends Packet>, List<BiConsumer<ChannelTransmit, Packet>>> listeners = new HashMap<>();
     private final Map<String, Function<CommunicationProperty, Packet>> responders = new HashMap<>();
 
-    @Deprecated
+    private final Map<String, List<ChannelTransmit>> servicesWithResponders = new HashMap<>();
+    private final Map<ChannelTransmit, List<String>> respondersByChannel = new HashMap<>();
+
+    private final Map<UUID, PendingRequest> pending = new HashMap<>();
     private final Map<UUID, CommunicationFuture<? extends Packet>> requests = new HashMap<>();
 
     @SuppressWarnings("unchecked")
@@ -59,16 +61,13 @@ public abstract class CommunicationListener {
         return this.request(id, packet, new CommunicationProperty());
     }
 
-
-    public void callResponder(ChannelTransmit channelTransmit, @NotNull RequestPacket requestPacket) {
-        if (!responders.containsKey(requestPacket.id())) {
-            channelTransmit.sendPacket(new BadRequestPacket(requestPacket.uuid()));
-            System.out.println("Found no responder for: " + requestPacket.id());
-            return;
-        }
-
+    public void respond(ChannelTransmit channelTransmit, RequestPacket requestPacket) {
         var response = responders.get(requestPacket.id()).apply(requestPacket.property());
         channelTransmit.sendPacket(new RequestResponsePacket(requestPacket.uuid(), response));
+    }
+
+    public boolean hasResponder(String id) {
+        return responders.containsKey(id);
     }
 
     public void responder(String id, Function<CommunicationProperty, Packet> packetFunction) {
@@ -77,22 +76,35 @@ public abstract class CommunicationListener {
 
     public <P extends Packet> boolean call(@NotNull P packet, ChannelTransmit channelTransmit) {
         if (packet instanceof RequestPacket requestPacket) {
-            this.callResponder(channelTransmit, requestPacket);
+            requestReceive(channelTransmit, requestPacket);
             return true;
         }
 
         if (packet instanceof RequestResponsePacket requestResponsePacket) {
-            if (!this.requests.containsKey(requestResponsePacket.uuid())) {
-                return true;
-            }
-            ((CommunicationFuture<Packet>) this.requests.get(requestResponsePacket.uuid())).complete(requestResponsePacket.response());
-            this.requests.remove(requestResponsePacket.uuid());
+            responseReceive(channelTransmit, requestResponsePacket);
             return true;
         }
 
         if (packet instanceof BadRequestPacket badRequestPacket) {
-            this.requests.remove(badRequestPacket.uuid());
-            System.out.println("Invalid request from: " + badRequestPacket.uuid());
+            badRequestReceive(channelTransmit, badRequestPacket);
+            return true;
+        }
+
+        if (packet instanceof RegisterResponderPacket registerResponderPacket) {
+            var id = registerResponderPacket.id();
+
+            if (!this.servicesWithResponders.containsKey(id)) {
+                this.servicesWithResponders.put(id, new ArrayList<>());
+            }
+
+            if (!this.respondersByChannel.containsKey(channelTransmit)) {
+                this.respondersByChannel.put(channelTransmit, new ArrayList<>());
+            }
+
+            this.servicesWithResponders.get(id).add(channelTransmit);
+            this.respondersByChannel.get(channelTransmit).add(id);
+
+            System.out.println("Registered responder: " + id);
             return true;
         }
 
@@ -107,4 +119,10 @@ public abstract class CommunicationListener {
     }
 
     public abstract void sendPacket(Packet packet);
+
+    public abstract void requestReceive(ChannelTransmit channelTransmit, RequestPacket packet);
+
+    public abstract void badRequestReceive(ChannelTransmit channelTransmit, BadRequestPacket packet);
+
+    public abstract void responseReceive(ChannelTransmit channelTransmit, RequestResponsePacket packet);
 }

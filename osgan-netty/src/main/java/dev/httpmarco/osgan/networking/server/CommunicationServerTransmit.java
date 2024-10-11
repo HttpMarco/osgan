@@ -17,11 +17,6 @@ public class CommunicationServerTransmit extends ChannelTransmit {
     }
 
     @Override
-    public void callResponder(ChannelTransmit channelTransmit, @NotNull RequestPacket requestPacket) {
-        communicationComponent.callResponder(channelTransmit, requestPacket);
-    }
-
-    @Override
     public <P extends Packet> boolean call(@NotNull P packet, ChannelTransmit channelTransmit) {
         if (!super.call(packet, channelTransmit)) {
             communicationComponent.call(packet, channelTransmit);

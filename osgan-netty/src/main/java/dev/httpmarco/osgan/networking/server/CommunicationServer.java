@@ -1,13 +1,15 @@
 package dev.httpmarco.osgan.networking.server;
 
 import dev.httpmarco.osgan.networking.CommunicationComponent;
+import dev.httpmarco.osgan.networking.CommunicationFuture;
 import dev.httpmarco.osgan.networking.CommunicationNetworkUtils;
 import dev.httpmarco.osgan.networking.CommunicationTransmitHandler;
 import dev.httpmarco.osgan.networking.channel.ChannelInitializer;
 import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
-import dev.httpmarco.osgan.networking.packet.Packet;
+import dev.httpmarco.osgan.networking.packet.*;
 import dev.httpmarco.osgan.networking.security.SecurityController;
 import io.netty5.bootstrap.ServerBootstrap;
+import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import lombok.AccessLevel;
@@ -15,11 +17,12 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Accessors(fluent = true)
 public final class CommunicationServer extends CommunicationComponent<CommunicationServerAction> {
+
+    private static final Random RANDOM = new Random();
 
     @Getter
     private final List<ChannelTransmit> channels = new ArrayList<>();
@@ -63,6 +66,22 @@ public final class CommunicationServer extends CommunicationComponent<Communicat
                         throw new RuntimeException(future.cause());
                     }
                 });
+
+        clientAction(CommunicationServerAction.CLIENT_DISCONNECT, transmit -> {
+            if (!respondersByChannel().containsKey(transmit)) {
+                return;
+            }
+
+            respondersByChannel().get(transmit).forEach(s -> {
+                servicesWithResponders().get(s).remove(transmit);
+
+                if (servicesWithResponders().get(s).isEmpty()) {
+                    System.out.println("Unregistered responder: " + s);
+                }
+            });
+
+            respondersByChannel().remove(transmit);
+        });
     }
 
     public CommunicationServer useSecurityRules(SecurityController securityController) {
@@ -79,5 +98,50 @@ public final class CommunicationServer extends CommunicationComponent<Communicat
     @Override
     public void sendPacket(Packet packet) {
         this.channels.forEach(channelTransmit -> channelTransmit.sendPacket(packet));
+    }
+
+    @Override
+    public void requestReceive(ChannelTransmit channelTransmit, RequestPacket packet) {
+        if (hasResponder(packet.id())) {
+            this.respond(channelTransmit, packet);
+            return;
+        }
+
+        if (servicesWithResponders().containsKey(packet.id())) {
+            pending().put(packet.uuid(), new PendingRequest(
+                    channelTransmit,
+                    packet.id(),
+                    packet.uuid(),
+                    System.currentTimeMillis()
+            ));
+
+            var responders = servicesWithResponders().get(packet.id());
+            var responder = responders.get(RANDOM.nextInt(responders.size()));
+
+            responder.sendPacket(packet);
+
+            System.out.println("Received request '" + packet.uuid() + "' for '" + packet.id() + "'");
+            return;
+        }
+
+        channelTransmit.sendPacket(new BadRequestPacket(packet.uuid(), "No responder registered!"));
+    }
+
+    @Override
+    public void badRequestReceive(ChannelTransmit channelTransmit, BadRequestPacket packet) {
+        if (!pending().containsKey(packet.uuid())) {
+            return;
+        }
+
+        pending().get(packet.uuid()).transmit().sendPacket(packet);
+    }
+
+    @Override
+    public void responseReceive(ChannelTransmit channelTransmit, RequestResponsePacket packet) {
+        if (!pending().containsKey(packet.uuid())) {
+            return;
+        }
+
+        pending().get(packet.uuid()).transmit().sendPacket(packet);
     }
 }
