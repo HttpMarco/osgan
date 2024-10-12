@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Function;
 
 @Getter
 @Accessors(fluent = true)
@@ -25,11 +25,16 @@ public class RequestResponsePacket extends Packet {
         packet.write(this.buffer);
     }
 
-    @SneakyThrows
+    @Nullable
     public Packet buildPacket() {
-        var packet = (Packet) PacketAllocator.allocate(Class.forName(this.packetClass));
-        Objects.requireNonNull(packet).read(this.buffer);
-        return packet;
+        try {
+            Packet packet = (Packet) PacketAllocator.allocate(Class.forName(this.packetClass));
+            Objects.requireNonNull(packet).read(this.buffer);
+            return packet;
+        } catch (ClassNotFoundException e) {
+            System.out.println("Could not find supplied packet class: " + this.packetClass);
+            return null;
+        }
     }
 
     @Override
