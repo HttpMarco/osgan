@@ -63,9 +63,9 @@ public abstract class RequestServer extends CommunicationComponent<Communication
 
         listen(BadRequestPacket.class, (transmit, packet) -> {
             if (requests.containsKey(packet.uuid())) {
-                this.requests.remove(packet.uuid());
+                completeRequest(packet.uuid(), null);
 
-                System.out.println("Invalid request (" + packet.uuid() + "): " + packet.message());
+                this.requests.remove(packet.uuid());
             } else if (pending.containsKey(packet.uuid())) {
                 pending.get(packet.uuid()).transmit().sendPacket(packet);
                 pending.remove(packet.uuid());
@@ -127,7 +127,7 @@ public abstract class RequestServer extends CommunicationComponent<Communication
 
     @Override
     public void completeRequest(UUID uuid, @Nullable Packet packet) {
-        if (hasRequest(uuid) && packet != null) {
+        if (hasRequest(uuid)) {
             ((CommunicationFuture<Packet>) this.requests.get(uuid)).complete(packet);
             this.requests.remove(uuid);
         }
@@ -141,9 +141,9 @@ public abstract class RequestServer extends CommunicationComponent<Communication
         this.requests.put(uuid, future);
 
         if (this.responders.containsKey(id)) {
-            this.completeRequest(uuid, buildResponse(new RequestPacket(id, uuid, property)));
+            this.completeRequest(uuid, buildResponse(new RequestPacket(id, uuid, true, property)));
         } else if (this.registeredResponders.containsKey(id)) {
-            Objects.requireNonNull(this.pickRandomResponderChannel(id)).writeAndFlush(new RequestPacket(id, uuid, property));
+            Objects.requireNonNull(this.pickRandomResponderChannel(id)).writeAndFlush(new RequestPacket(id, uuid, true, property));
         } else {
             this.requests.remove(uuid);
             System.out.println("No responder registered locally and none found on any other service!");

@@ -35,9 +35,8 @@ public abstract class RequestClient extends CommunicationComponent<Communication
         });
 
         listen(BadRequestPacket.class, (transmit, packet) -> {
+            completeRequest(packet.uuid(), null);
             this.requests.remove(packet.uuid());
-
-            System.out.println("Invalid request (" + packet.uuid() + "): " + packet.message());
         });
 
         listen(RequestResponsePacket.class, (transmit, packet) -> {
@@ -49,7 +48,7 @@ public abstract class RequestClient extends CommunicationComponent<Communication
 
     @Override
     public void completeRequest(UUID uuid, @Nullable Packet packet) {
-        if (hasRequest(uuid) && packet != null) {
+        if (hasRequest(uuid)) {
             ((CommunicationFuture<Packet>) this.requests.get(uuid)).complete(packet);
         }
     }
@@ -62,9 +61,9 @@ public abstract class RequestClient extends CommunicationComponent<Communication
         this.requests.put(uuid, future);
 
         if (this.responders.containsKey(id)) {
-            this.completeRequest(uuid, buildResponse(new RequestPacket(id, uuid, property)));
+            this.completeRequest(uuid, buildResponse(new RequestPacket(id, uuid, true, property)));
         } else {
-            sendPacket(new RequestPacket(id, uuid, property));
+            sendPacket(new RequestPacket(id, uuid, true, property));
         }
 
         return future;

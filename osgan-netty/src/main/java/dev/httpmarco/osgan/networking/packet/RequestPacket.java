@@ -16,24 +16,29 @@ public final class RequestPacket extends Packet {
 
     private String id;
     private UUID uuid;
+    private boolean needsResponse;
 
     //todo
     private CommunicationProperty property;
+
 
     @Override
     @SneakyThrows
     public void read(@NotNull PacketBuffer buffer) {
         this.id = buffer.readString();
         this.uuid = buffer.readUniqueId();
+        this.needsResponse = buffer.readBoolean();
 
         this.property = CommunicationProperty.class.getConstructor().newInstance();
         this.property.read(buffer);
+
     }
 
     @Override
     public void write(@NotNull PacketBuffer buffer) {
         buffer.writeString(id);
         buffer.writeUniqueId(uuid);
+        buffer.writeBoolean(needsResponse);
 
         property.write(buffer);
     }
