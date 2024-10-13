@@ -47,6 +47,7 @@ public abstract class CommunicationListener {
 
     public abstract void sendPacket(Packet packet);
 
+    //TODO replace with abstract log method to implement in polocloud
     public static Logger getLogger() {
         return LOGGER;
     }

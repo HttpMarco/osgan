@@ -24,7 +24,11 @@ public final class PacketBuffer {
     private final Buffer origin;
 
     public static PacketBuffer allocate() {
-        return new PacketBuffer(BUFFER_ALLOCATOR.allocate(0));
+        return allocate(0);
+    }
+
+    public static PacketBuffer allocate(int i) {
+        return new PacketBuffer(BUFFER_ALLOCATOR.allocate(i));
     }
 
     public void resetBuffer() {
