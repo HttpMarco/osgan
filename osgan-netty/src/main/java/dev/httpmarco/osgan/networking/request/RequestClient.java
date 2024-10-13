@@ -61,9 +61,9 @@ public abstract class RequestClient extends CommunicationComponent<Communication
         this.requests.put(uuid, future);
 
         if (this.responders.containsKey(id)) {
-            this.completeRequest(uuid, buildResponse(new RequestPacket(id, uuid, true, property)));
+            this.completeRequest(uuid, buildResponse(new RequestPacket(id, uuid, property)));
         } else {
-            sendPacket(new RequestPacket(id, uuid, true, property));
+            sendPacket(new RequestPacket(id, uuid, property));
         }
 
         return future;

@@ -141,9 +141,9 @@ public abstract class RequestServer extends CommunicationComponent<Communication
         this.requests.put(uuid, future);
 
         if (this.responders.containsKey(id)) {
-            this.completeRequest(uuid, buildResponse(new RequestPacket(id, uuid, true, property)));
+            this.completeRequest(uuid, buildResponse(new RequestPacket(id, uuid, property)));
         } else if (this.registeredResponders.containsKey(id)) {
-            Objects.requireNonNull(this.pickRandomResponderChannel(id)).writeAndFlush(new RequestPacket(id, uuid, true, property));
+            Objects.requireNonNull(this.pickRandomResponderChannel(id)).writeAndFlush(new RequestPacket(id, uuid, property));
         } else {
             this.requests.remove(uuid);
             System.out.println("No responder registered locally and none found on any other service!");
