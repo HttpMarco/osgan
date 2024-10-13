@@ -6,6 +6,10 @@ import io.netty5.channel.Channel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import lombok.extern.log4j.Log4j2;
+
+import java.text.MessageFormat;
+import java.util.logging.Level;
 
 @Getter
 @AllArgsConstructor
@@ -17,7 +21,7 @@ public class ChannelTransmit extends CommunicationListener {
     @Override
     public void sendPacket(Packet packet) {
         if (channel == null) {
-            System.err.println("Write packet " + packet.getClass().getSimpleName() + " on channel failed, channel is null");
+            CommunicationListener.getLogger().log(Level.SEVERE, MessageFormat.format("Write packet {0} on channel failed, channel is null", packet.getClass().getSimpleName()));
             return;
         }
         this.channel.writeAndFlush(packet);

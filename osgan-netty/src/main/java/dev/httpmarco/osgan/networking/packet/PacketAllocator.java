@@ -1,9 +1,13 @@
 package dev.httpmarco.osgan.networking.packet;
 
+import dev.httpmarco.osgan.networking.CommunicationListener;
 import lombok.experimental.UtilityClass;
+import lombok.extern.log4j.Log4j2;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.MessageFormat;
+import java.util.logging.Level;
 
 @UtilityClass
 public final class PacketAllocator {
@@ -30,7 +34,7 @@ public final class PacketAllocator {
                 return tClass.getConstructor().newInstance();
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                      InvocationTargetException ex) {
-                System.err.println("Cannot create new object: " + tClass.getSimpleName());
+                CommunicationListener.getLogger().log(Level.SEVERE, MessageFormat.format("Cannot create new object: {0}", tClass.getSimpleName()));
             }
         }
         return null;

@@ -17,9 +17,7 @@ public final class RequestPacket extends Packet {
     private String id;
     private UUID uuid;
 
-    //todo
     private CommunicationProperty property;
-
 
     @Override
     @SneakyThrows

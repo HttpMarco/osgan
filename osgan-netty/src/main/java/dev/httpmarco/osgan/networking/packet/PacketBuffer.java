@@ -1,16 +1,20 @@
 package dev.httpmarco.osgan.networking.packet;
 
+import dev.httpmarco.osgan.networking.CommunicationListener;
 import io.netty5.buffer.Buffer;
 import io.netty5.buffer.BufferAllocator;
 import io.netty5.buffer.DefaultBufferAllocators;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 @AllArgsConstructor
 public final class PacketBuffer {
@@ -25,7 +29,7 @@ public final class PacketBuffer {
 
     public void resetBuffer() {
         if (origin.readableBytes() > 0) {
-            System.err.println("Buffer not empty! Skipping remaining bytes: " + origin.readableBytes());
+            CommunicationListener.getLogger().log(Level.SEVERE, MessageFormat.format("Buffer not empty! Skipping remaining bytes: {0}", origin.readableBytes()));
             origin.skipReadableBytes(origin.readableBytes());
         }
     }

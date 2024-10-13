@@ -12,11 +12,14 @@ import dev.httpmarco.osgan.networking.server.CommunicationServerAction;
 import io.netty5.channel.Channel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.logging.Level;
 
 @Accessors(fluent = true)
 @Getter
@@ -35,14 +38,15 @@ public abstract class RequestServer extends CommunicationComponent<Communication
         super(bossGroupThreads, hostname, port);
 
         listen(RequestPacket.class, (transmit, packet) -> {
-            System.out.println("Received request: " + packet.uuid() +
-                    " for: " + packet.id() +
-                    " from: " + transmit.channel().remoteAddress().toString().replaceFirst("/", ""));
-
             if (hasResponder(packet.id())) {
                 transmit.sendPacket(new RequestResponsePacket(packet.uuid(), buildResponse(packet)));
                 return;
             }
+
+            getLogger().log(Level.INFO, MessageFormat.format("Received request: {0} for: {1} from: {2}",
+                    packet.uuid(),
+                    packet.id(),
+                    transmit.channel().remoteAddress().toString().replaceFirst("/", "")));
 
             if (this.registeredResponders.containsKey(packet.id())) {
                 this.pending.put(packet.uuid(), new PendingRequest(
@@ -58,7 +62,7 @@ public abstract class RequestServer extends CommunicationComponent<Communication
 
             transmit.sendPacket(new BadRequestPacket(packet.uuid(), "No responder registered!"));
 
-            System.out.println("No responder registered for: " + packet.id());
+            getLogger().log(Level.INFO, MessageFormat.format("No responder registered for: {0}", packet.id()));
         });
 
         listen(BadRequestPacket.class, (transmit, packet) -> {
@@ -70,23 +74,21 @@ public abstract class RequestServer extends CommunicationComponent<Communication
                 pending.get(packet.uuid()).transmit().sendPacket(packet);
                 pending.remove(packet.uuid());
 
-                System.out.println("Received bad request: " + packet.uuid() +
-                        " from: " + transmit.channel().remoteAddress().toString().replaceFirst("/", ""));
+                getLogger().log(Level.INFO, MessageFormat.format("Received bad request: {0} from: {1}", packet.uuid(), transmit.channel().remoteAddress().toString().replaceFirst("/", "")));
             }
         });
 
         listen(RequestResponsePacket.class, (transmit, packet) -> {
             if (requests.containsKey(packet.uuid())) {
-                completeRequest(packet.uuid(), packet.buildPacket());
+                completeRequest(packet.uuid(), packet.buildPacket(this.classSupplier()));
 
                 this.requests.remove(packet.uuid());
             } else if (pending.containsKey(packet.uuid())) {
                 pending.get(packet.uuid()).transmit().sendPacket(packet);
                 pending.remove(packet.uuid());
-            }
 
-            System.out.println("Received response: " + packet.uuid() +
-                    " from: " + transmit.channel().remoteAddress().toString().replaceFirst("/", ""));
+                getLogger().log(Level.INFO, MessageFormat.format("Received response: {0} from: {1}", packet.uuid(), transmit.channel().remoteAddress().toString().replaceFirst("/", "")));
+            }
         });
 
         listen(RegisterResponderPacket.class, (transmit, packet) -> {
@@ -103,7 +105,7 @@ public abstract class RequestServer extends CommunicationComponent<Communication
             this.registeredResponders.get(id).add(transmit.channel());
             this.respondersByChannel.get(transmit.channel()).add(id);
 
-            System.out.println("Registered responder: " + id + " from: " + transmit.channel().remoteAddress().toString().replaceFirst("/", ""));
+            getLogger().log(Level.INFO, MessageFormat.format("Registered responder: {0} from: {1}", id, transmit.channel().remoteAddress().toString().replaceFirst("/", "")));
         });
 
         clientAction(CommunicationServerAction.CLIENT_DISCONNECT, transmit -> {
@@ -117,7 +119,7 @@ public abstract class RequestServer extends CommunicationComponent<Communication
                 if (this.registeredResponders.get(s).isEmpty()) {
                     this.registeredResponders.remove(s);
 
-                    System.out.println("Unregistered responder: " + s + " from: " + transmit.channel().remoteAddress().toString().replaceFirst("/", ""));
+                    getLogger().log(Level.INFO, MessageFormat.format("Unregistered responder: {0} from: {1}", s, transmit.channel().remoteAddress().toString().replaceFirst("/", "")));
                 }
             });
 
@@ -146,7 +148,7 @@ public abstract class RequestServer extends CommunicationComponent<Communication
             Objects.requireNonNull(this.pickRandomResponderChannel(id)).writeAndFlush(new RequestPacket(id, uuid, property));
         } else {
             this.requests.remove(uuid);
-            System.out.println("No responder registered locally and none found on any other service!");
+            getLogger().log(Level.INFO, "No responder registered locally and none found on any other service!");
         }
 
         return future;
@@ -155,15 +157,11 @@ public abstract class RequestServer extends CommunicationComponent<Communication
     @Override
     public void registerResponder(String id, Function<CommunicationProperty, Packet> function) {
         this.responders.put(id, function);
-
-        System.out.println("Registered local responder: " + id);
     }
 
     @Override
     public void unregisterResponder(String id) {
         this.responders.remove(id);
-
-        System.out.println("Unregistered local responder: " + id);
     }
 
     @Override

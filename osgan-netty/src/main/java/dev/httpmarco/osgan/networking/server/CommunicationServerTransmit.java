@@ -16,7 +16,6 @@ public class CommunicationServerTransmit extends ChannelTransmit {
         this.communicationComponent = communicationComponent;
     }
 
-    //TODO check this
     @Override
     public <P extends Packet> boolean call(@NotNull P packet, ChannelTransmit transmit) {
         return this.communicationComponent.call(packet, transmit);

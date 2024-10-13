@@ -3,17 +3,25 @@ package dev.httpmarco.osgan.networking;
 import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
 import dev.httpmarco.osgan.networking.packet.*;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 @Getter
 @Accessors(fluent = true)
 public abstract class CommunicationListener {
+    private final static Logger LOGGER = Logger.getLogger("osgan-netty");
+
     private final Map<Class<? extends Packet>, List<BiConsumer<ChannelTransmit, Packet>>> listeners = new HashMap<>();
+
+    @Setter
+    @NotNull
+    private ClassSupplier classSupplier = new DefaultClassSupplier();
 
     @SuppressWarnings("unchecked")
     public <P extends Packet> void listen(Class<P> listeningClass, BiConsumer<ChannelTransmit, P> packetCallback) {
@@ -38,4 +46,8 @@ public abstract class CommunicationListener {
     }
 
     public abstract void sendPacket(Packet packet);
+
+    public static Logger getLogger() {
+        return LOGGER;
+    }
 }
