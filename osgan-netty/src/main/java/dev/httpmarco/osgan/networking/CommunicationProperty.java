@@ -2,11 +2,14 @@ package dev.httpmarco.osgan.networking;
 
 import dev.httpmarco.osgan.networking.packet.PacketBuffer;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class CommunicationProperty {
 
@@ -120,7 +123,7 @@ public class CommunicationProperty {
                 buffer.writeEnum(PropertyTypes.LONG);
                 buffer.writeLong(longValue);
             } else {
-                System.err.println("Unknown property: " + o.getClass().getSimpleName() + ":" + s);
+                CommunicationListener.getLogger().log(Level.SEVERE, MessageFormat.format("Unknown property: {0}:{1}", o.getClass().getSimpleName(), s));
             }
         });
     }

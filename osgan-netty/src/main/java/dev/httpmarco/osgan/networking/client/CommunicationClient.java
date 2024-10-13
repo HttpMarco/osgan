@@ -1,11 +1,8 @@
 package dev.httpmarco.osgan.networking.client;
 
-import dev.httpmarco.osgan.networking.CommunicationComponent;
-import dev.httpmarco.osgan.networking.CommunicationNetworkUtils;
-import dev.httpmarco.osgan.networking.CommunicationTransmitHandler;
-import dev.httpmarco.osgan.networking.channel.ChannelInitializer;
-import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
-import dev.httpmarco.osgan.networking.packet.Packet;
+import dev.httpmarco.osgan.networking.*;
+import dev.httpmarco.osgan.networking.packet.*;
+import dev.httpmarco.osgan.networking.request.RequestClient;
 import dev.httpmarco.osgan.networking.security.SecurityChannelParametrize;
 import io.netty5.bootstrap.Bootstrap;
 import io.netty5.channel.ChannelOption;
@@ -13,14 +10,10 @@ import io.netty5.channel.epoll.Epoll;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
 @Accessors(fluent = true)
-public final class CommunicationClient extends CommunicationComponent<CommunicationClientAction> {
+public final class CommunicationClient extends RequestClient {
 
     private final Bootstrap bootstrap;
 
@@ -43,7 +36,7 @@ public final class CommunicationClient extends CommunicationComponent<Communicat
                 .handler(new CommunicationClientChannelInitializer(securityChannelParametrize, new CommunicationTransmitHandler(
                         this,
                         (it) -> List.of(channelTransmit),
-                        (it, channel) -> this.channelTransmit.call(it, channel),
+                        this::call,
                         (it) -> {
                             channelTransmit = CommunicationClientTransmit.of(this, it);
                             callClientAction(CommunicationClientAction.CONNECTED);

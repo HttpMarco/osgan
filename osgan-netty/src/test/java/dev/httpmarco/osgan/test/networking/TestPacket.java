@@ -13,23 +13,29 @@ import java.util.UUID;
 @ToString
 @Accessors(fluent = true)
 @AllArgsConstructor
-public class testpacket extends Packet {
+public class TestPacket extends Packet {
 
     private String name;
-    private UUID uniqueId;
-    private long time;
+    private int test;
 
     @Override
     public void read(PacketBuffer buffer) {
         this.name = buffer.readString();
-        this.uniqueId = buffer.readUniqueId();
-        this.time = buffer.readLong();
+        this.test = buffer.readInt();
     }
 
     @Override
     public void write(PacketBuffer buffer) {
         buffer.writeString(name);
-        buffer.writeUniqueId(uniqueId);
-        buffer.writeLong(time);
+        buffer.writeInt(test);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof TestPacket packet) {
+            return packet.name.equals(name) && packet.test == test();
+        }
+
+        return false;
     }
 }

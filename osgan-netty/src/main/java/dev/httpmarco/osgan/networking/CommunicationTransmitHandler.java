@@ -7,6 +7,7 @@ import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.channel.SimpleChannelInboundHandler;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public final class CommunicationTransmitHandler extends SimpleChannelInboundHand
 
     private static final Executor PACKET_THREAD_EXECUTOR = Executors.newCachedThreadPool();
 
+    @Getter
     private final CommunicationComponent<?> communicationComponent;
     private final Function<Channel, List<ChannelTransmit>> findTransmitFunction;
     private final BiConsumer<Packet, ChannelTransmit> channelTransmitPacketConsumer;
