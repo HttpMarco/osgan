@@ -2,7 +2,7 @@
 
 nexusPublish = "2.0.0"
 
-annotations = "26.0.0"
+annotations = "26.0.1"
 lombok = "1.18.34"
 
 gson = "2.11.0"
