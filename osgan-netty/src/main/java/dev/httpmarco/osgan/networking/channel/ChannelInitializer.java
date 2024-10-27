@@ -21,7 +21,7 @@ public abstract class ChannelInitializer extends io.netty5.channel.ChannelInitia
     @Override
     protected void initChannel(@NotNull Channel channel) {
         channel.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, Integer.BYTES, 0, Integer.BYTES))
-                .addLast(new PacketDecoder())
+                .addLast(new PacketDecoder(this.transmitHandler.getCommunicationComponent()))
                 .addLast(new LengthFieldPrepender(Integer.BYTES))
                 .addLast(new PacketEncoder())
                 .addLast(transmitHandler);

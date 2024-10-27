@@ -1,13 +1,18 @@
 package dev.httpmarco.osgan.networking.codec;
 
+import dev.httpmarco.osgan.networking.CommunicationListener;
 import dev.httpmarco.osgan.networking.packet.Packet;
 import dev.httpmarco.osgan.networking.packet.PacketBuffer;
 import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.MessageToByteEncoder;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
+
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 public class PacketEncoder extends MessageToByteEncoder<Packet> {
 
@@ -52,8 +57,7 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
             origin.copyInto(0, out, out.writerOffset(), readableBytes);
             out.skipWritableBytes(readableBytes);
         } catch (Exception e) {
-            System.err.println("Error while encoding packet " + msg.getClass().getName());
-            e.printStackTrace();
+            CommunicationListener.getLogger().log(Level.SEVERE, MessageFormat.format("Error while encoding packet {0}", msg.getClass().getName()), e);
         }
         tempPacketEncoderList.remove(msg);
     }

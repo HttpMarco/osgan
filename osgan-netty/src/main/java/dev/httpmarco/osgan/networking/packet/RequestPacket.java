@@ -17,7 +17,6 @@ public final class RequestPacket extends Packet {
     private String id;
     private UUID uuid;
 
-    //todo
     private CommunicationProperty property;
 
     @Override
@@ -28,6 +27,7 @@ public final class RequestPacket extends Packet {
 
         this.property = CommunicationProperty.class.getConstructor().newInstance();
         this.property.read(buffer);
+
     }
 
     @Override

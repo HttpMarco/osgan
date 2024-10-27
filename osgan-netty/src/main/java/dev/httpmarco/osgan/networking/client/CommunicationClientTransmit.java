@@ -9,11 +9,11 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class CommunicationClientTransmit extends ChannelTransmit {
-
     private final CommunicationComponent<?> communicationComponent;
 
     public CommunicationClientTransmit(CommunicationComponent<?> communicationComponent, Channel channel) {
@@ -32,28 +32,8 @@ public final class CommunicationClientTransmit extends ChannelTransmit {
     }
 
     @Override
-    public void responder(String id, Function<CommunicationProperty, Packet> packetFunction) {
-        this.communicationComponent.responder(id, packetFunction);
-    }
-
-    @Override
-    public <P extends Packet> CompletableFuture<P> requestAsync(String id, Class<P> packet) {
-        return this.communicationComponent.requestAsync(id, packet);
-    }
-
-    @Override
-    public <P extends Packet> CompletableFuture<P> requestAsync(String id, Class<P> packet, CommunicationProperty property) {
-        return this.communicationComponent.requestAsync(id, packet, property);
-    }
-
-    @Override
-    public <P extends Packet> P request(String id, Class<P> packet) {
-        return this.communicationComponent.request(id, packet);
-    }
-
-    @Override
-    public <P extends Packet> P request(String id, Class<P> packet, CommunicationProperty property) {
-        return this.communicationComponent.request(id, packet, property);
+    public <P extends Packet> void listen(Class<P> listeningClass, BiConsumer<ChannelTransmit, P> packetCallback) {
+        communicationComponent.listen(listeningClass, packetCallback);
     }
 
     @Contract("_ -> new")
@@ -64,8 +44,6 @@ public final class CommunicationClientTransmit extends ChannelTransmit {
     public static @NotNull CommunicationClientTransmit of(CommunicationComponent<?> communicationComponent, @NotNull ChannelTransmit transmit) {
         var clientTransmit = new CommunicationClientTransmit(communicationComponent, transmit.channel());
         clientTransmit.listeners().putAll(transmit.listeners());
-        clientTransmit.requests().putAll(transmit.requests());
-        clientTransmit.responders().putAll(transmit.responders());
         return clientTransmit;
     }
 }

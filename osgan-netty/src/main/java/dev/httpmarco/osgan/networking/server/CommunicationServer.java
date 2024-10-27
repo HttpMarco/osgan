@@ -1,11 +1,10 @@
 package dev.httpmarco.osgan.networking.server;
 
-import dev.httpmarco.osgan.networking.CommunicationComponent;
 import dev.httpmarco.osgan.networking.CommunicationNetworkUtils;
 import dev.httpmarco.osgan.networking.CommunicationTransmitHandler;
-import dev.httpmarco.osgan.networking.channel.ChannelInitializer;
 import dev.httpmarco.osgan.networking.channel.ChannelTransmit;
-import dev.httpmarco.osgan.networking.packet.Packet;
+import dev.httpmarco.osgan.networking.packet.*;
+import dev.httpmarco.osgan.networking.request.RequestServer;
 import dev.httpmarco.osgan.networking.security.SecurityController;
 import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.ChannelOption;
@@ -15,12 +14,10 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Accessors(fluent = true)
-public final class CommunicationServer extends CommunicationComponent<CommunicationServerAction> {
-
+public final class CommunicationServer extends RequestServer {
     @Getter
     private final List<ChannelTransmit> channels = new ArrayList<>();
     private final EventLoopGroup workerGroup = CommunicationNetworkUtils.createEventLoopGroup(0);
