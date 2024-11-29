@@ -40,7 +40,7 @@ public abstract class RequestClient extends CommunicationComponent<Communication
         });
 
         listen(RequestResponsePacket.class, (transmit, packet) -> {
-            completeRequest(packet.uuid(), packet.buildPacket(this.classSupplier()));
+            completeRequest(packet.uuid(), packet.buildPacket());
 
             this.requests.remove(packet.uuid());
         });

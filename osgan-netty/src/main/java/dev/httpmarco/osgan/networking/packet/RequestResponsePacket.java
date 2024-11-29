@@ -1,13 +1,10 @@
 package dev.httpmarco.osgan.networking.packet;
 
-import dev.httpmarco.osgan.networking.ClassSupplier;
 import dev.httpmarco.osgan.networking.CommunicationListener;
-import dev.httpmarco.osgan.networking.DefaultClassSupplier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
-import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
@@ -32,19 +29,13 @@ public class RequestResponsePacket extends Packet {
     }
 
     @Nullable
-    public Packet buildPacket(ClassSupplier classSupplier) {
+    public Packet buildPacket() {
         try {
-            Packet packet = (Packet) PacketAllocator.allocate(classSupplier.classByName(this.packetClass));
+            Packet packet = (Packet) PacketAllocator.allocate(Class.forName(this.packetClass));
             Objects.requireNonNull(packet).read(this.buffer);
             return packet;
         } catch (ClassNotFoundException e) {
             CommunicationListener.getLogger().log(Level.SEVERE, MessageFormat.format("Could not find supplied packet class: {0}", this.packetClass));
-
-            if (classSupplier instanceof DefaultClassSupplier) {
-                CommunicationListener.getLogger().log(Level.SEVERE, "You are using the default class supplier. If the provided packet class originates from " +
-                        "another project or classpath, create a ClassSupplier to access the classes there (CommunicationListener#setClassSupplier)");
-            }
-
             return null;
         }
     }

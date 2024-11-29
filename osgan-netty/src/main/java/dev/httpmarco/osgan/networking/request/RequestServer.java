@@ -80,7 +80,7 @@ public abstract class RequestServer extends CommunicationComponent<Communication
 
         listen(RequestResponsePacket.class, (transmit, packet) -> {
             if (requests.containsKey(packet.uuid())) {
-                completeRequest(packet.uuid(), packet.buildPacket(this.classSupplier()));
+                completeRequest(packet.uuid(), packet.buildPacket());
 
                 this.requests.remove(packet.uuid());
             } else if (pending.containsKey(packet.uuid())) {

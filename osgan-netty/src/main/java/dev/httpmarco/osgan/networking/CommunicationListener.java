@@ -19,10 +19,6 @@ public abstract class CommunicationListener {
 
     private final Map<Class<? extends Packet>, List<BiConsumer<ChannelTransmit, Packet>>> listeners = new HashMap<>();
 
-    @Setter
-    @NotNull
-    private ClassSupplier classSupplier = new DefaultClassSupplier();
-
     @SuppressWarnings("unchecked")
     public <P extends Packet> void listen(Class<P> listeningClass, BiConsumer<ChannelTransmit, P> packetCallback) {
         var packetListeners = listeners.getOrDefault(listeningClass, new ArrayList<>());
